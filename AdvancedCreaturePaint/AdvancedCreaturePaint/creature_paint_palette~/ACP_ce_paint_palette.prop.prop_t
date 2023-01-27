@@ -1,0 +1,14 @@
+keys palettePalettePages
+	creature_paint_palette_pages~!ACP_ce_TextureGroup_Basic_1
+	creature_paint_palette_pages~!ACP_ce_TextureGroup_Basic_2
+	creature_paint_palette_pages~!ACP_ce_TextureGroup_Fantasy_1
+	creature_paint_palette_pages~!ACP_ce_TextureGroup_Fantasy_2
+	creature_paint_palette_pages~!ACP_ce_TextureGroup_Old_1
+	creature_paint_palette_pages~!ACP_ce_TextureGroup_Old_2
+	creature_paint_palette_pages~!ACP_ce_TextureGroup_Tech_1
+	creature_paint_palette_pages~!ACP_ce_TextureGroup_Tech_2
+	creature_paint_palette_pages~!ACP_ce_TextureGroup_Tech_3
+	creature_paint_palette_pages~!ACP_ce_TextureGroup_Tech_4
+	creature_paint_palette_pages~!ACP_ce_TextureGroup_zany_1
+	creature_paint_palette_pages~!ACP_ce_TextureGroup_zany_2
+end

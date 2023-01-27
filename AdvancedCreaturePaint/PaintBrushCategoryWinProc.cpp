@@ -1,0 +1,187 @@
+#include "stdafx.h"
+#include "PaintBrushCategoryWinProc.h"
+
+PaintBrushCategoryWinProc::PaintBrushCategoryWinProc()
+{
+}
+
+
+PaintBrushCategoryWinProc::~PaintBrushCategoryWinProc()
+{
+}
+
+// For internal use, do not modify.
+int PaintBrushCategoryWinProc::AddRef()
+{
+	return DefaultRefCounted::AddRef();
+}
+
+// For internal use, do not modify.
+int PaintBrushCategoryWinProc::Release()
+{
+	return DefaultRefCounted::Release();
+}
+
+// You can extend this function to return any other types your class implements.
+void* PaintBrushCategoryWinProc::Cast(uint32_t type) const
+{
+	CLASS_CAST(Object);
+	CLASS_CAST(IWinProc);
+	CLASS_CAST(PaintBrushCategoryWinProc);
+	return nullptr;
+}
+
+// This method returns a combinations of values in UTFWin::EventFlags.
+// The combination determines what types of events (messages) this window procedure receives.
+// By default, it receives mouse/keyboard input and advanced messages.
+int PaintBrushCategoryWinProc::GetEventFlags() const
+{
+	return UTFWin::kEventFlagBasicInput | UTFWin::kEventFlagAdvanced;
+}
+
+// The method that receives the message. The first thing you should do is probably
+// checking what kind of message was sent...
+bool PaintBrushCategoryWinProc::HandleUIMessage(UTFWin::IWindow* window, const UTFWin::Message& message)
+{
+	if (message.IsType(UTFWin::kMsgMouseDown))
+	{
+		mIsSelectingMultipleRegions = false;
+		if (window == mButtonBase ||
+			window == mButtonCoat ||
+			window == mButtonDetail ||
+			window == mButtonIdentity)
+		{
+			mIsSelectingMultipleRegions = (message.Mouse.mouseState & MouseStateFlags::kMouseCtrlDown) != 0;
+		}
+	}
+	else if (message.IsType(UTFWin::kMsgComponentActivated))
+	{
+		auto button = object_cast<UTFWin::IButton>(window);
+		bool isSelected = (button->GetButtonStateFlags() & UTFWin::kBtnStateSelected) != 0;
+		bool wasSelected = !isSelected;
+
+		if (window == mButtonRemovePaint)
+		{
+
+		}
+		else
+		{
+			int region = (int)GetRegionForButton(window);
+
+			if (mIsSelectingMultipleRegions)
+			{
+				if (wasSelected)
+				{
+					int newRegionFlags = mSelectedRegions & ~region;
+					if (newRegionFlags == 0)
+					{
+						// We can only deselect if there are others selected
+						button->SetButtonStateFlag(UTFWin::kBtnStateSelected, true);
+					}
+					else
+					{
+						button->SetButtonStateFlag(UTFWin::kBtnStateSelected, false);
+						mSelectedRegions = newRegionFlags;
+					}
+				}
+				else
+				{
+					mSelectedRegions |= region;
+				}
+			}
+			else
+			{
+				int otherRegionFlags = mSelectedRegions & ~region;
+				// Deselect everything except this button if it wasn't selected, or if it was part of a multiple selection
+				if (!wasSelected || otherRegionFlags != 0)
+				{
+					// Deselect everything else, we do them all as we might come from deselect
+					object_cast<UTFWin::IButton>(mButtonBase)->SetButtonStateFlag(UTFWin::kBtnStateSelected, false);
+					object_cast<UTFWin::IButton>(mButtonCoat)->SetButtonStateFlag(UTFWin::kBtnStateSelected, false);
+					object_cast<UTFWin::IButton>(mButtonDetail)->SetButtonStateFlag(UTFWin::kBtnStateSelected, false);
+					object_cast<UTFWin::IButton>(mButtonIdentity)->SetButtonStateFlag(UTFWin::kBtnStateSelected, false);
+
+					button->SetButtonStateFlag(UTFWin::kBtnStateSelected, true);
+					mSelectedRegions = region;
+				}
+				else
+				{
+					// We always must have at least one selected
+					button->SetButtonStateFlag(UTFWin::kBtnStateSelected, true);
+				}
+			}
+		}
+	}
+
+	// Return true if the message was handled, and therefore no other window procedure should receive it.
+	return false;
+}
+
+void PaintBrushCategoryWinProc::AddToCategoryUI(Palettes::PaletteCategoryUI* categoryUI)
+{
+	mLayout = new UTFWin::UILayout();
+	mLayout->LoadByID(id("ACP_editorPaintBrushPaletteCategory"));
+
+	auto acpContainer = mLayout->FindWindowByID(id("ACPButtonsContainer"));
+	float containerHeight = acpContainer->GetArea().GetHeight();
+
+	Math::Rectangle originalColorPickersArea = categoryUI->mpColorPickersPanel->GetArea();
+
+	// Let's move the color picker down
+	Math::Rectangle area = categoryUI->mpColorPickersPanel->GetRealArea();
+	area.y1 += containerHeight;
+	area.y2 += containerHeight;
+	categoryUI->mpColorPickersPanel->SetLayoutArea(area);
+
+	// Let's shrink the page panel
+	area = categoryUI->mpPagePanel->GetRealArea();
+	area.y1 += containerHeight;
+	categoryUI->mpPagePanel->SetLayoutArea(area);
+
+	WindowPtr testWindow = new UTFWin::Window();
+	mLayout->SetParentWindow(categoryUI->mpPageFrame.get());
+
+	// Place it in same spot as color picker, but use our custom height
+	originalColorPickersArea.y2 = acpContainer->GetArea().y2;
+	acpContainer->SetArea(originalColorPickersArea);
+
+	mButtonBase = acpContainer->FindWindowByID(id("ButtonBase"));
+	mButtonCoat = acpContainer->FindWindowByID(id("ButtonCoat"));
+	mButtonDetail = acpContainer->FindWindowByID(id("ButtonDetail"));
+	mButtonIdentity = acpContainer->FindWindowByID(id("ButtonIdentity"));
+	mButtonRemovePaint = acpContainer->FindWindowByID(id("ButtonRemovePaint"));
+
+	mSelectedRegions = kRegionBase;
+
+	mButtonBase->AddWinProc(this);
+	mButtonCoat->AddWinProc(this);
+	mButtonDetail->AddWinProc(this);
+	mButtonIdentity->AddWinProc(this);
+	mButtonRemovePaint->AddWinProc(this);
+}
+
+bool PaintBrushCategoryWinProc::RegionIsSelected(Regions region) const
+{
+	return (mSelectedRegions & region) != 0;
+}
+
+PaintBrushCategoryWinProc::Mode PaintBrushCategoryWinProc::GetActiveMode() const
+{
+	if (object_cast<UTFWin::IButton>(mButtonRemovePaint)->GetButtonStateFlags() & UTFWin::kBtnStateSelected)
+	{
+		return Mode::RemovePaint;
+	}
+	else
+	{
+		return Mode::Paint;
+	}
+}
+
+PaintBrushCategoryWinProc::Regions PaintBrushCategoryWinProc::GetRegionForButton(UTFWin::IWindow* window)
+{
+	if (window == mButtonBase.get()) return kRegionBase;
+	if (window == mButtonCoat.get()) return kRegionCoat;
+	if (window == mButtonDetail.get()) return kRegionDetail;
+	if (window == mButtonIdentity.get()) return kRegionIdentity;
+	return kRegionNone;
+}

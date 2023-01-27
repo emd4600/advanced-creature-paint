@@ -1,0 +1,8 @@
+key paletteCategoryIcon editors~!ACP_icon_identity.png
+key paletteCategoryLayoutFile 0x1A43A8E7
+texts paletteCategoryName
+	(Tooltips!0x05b08750) "Identity"
+end
+key paletteCategoryParentCategory creature_paint_palette_category~!ACP_ce_category_paintbrush.prop
+uint32 paletteCategorySequenceNumber 500
+uint32 paletteCategorySkinPaintIndex 3

@@ -1,0 +1,18 @@
+key parent palette_config~!0x7E35C190.prop
+#key paletteCategoryLayoutFile ACP_editorPaintBrushPaletteCategory
+key paletteCategoryLayoutFile editorPaintBrushPaletteCategory
+keys paletteCategoryIconList
+	editors_creature~!0xDFADBF0F.png
+	editors_creature~!0x95BECDA4.png
+	editors_creature~!0xEC662779.png
+	editors_creature~!0xA2E1740F.png
+	editors_creature~!0xE5A89205.png
+	editors_creature~!0x95BECDA4.png
+	editors_creature~!0xEE522B6B.png
+	editors_creature~!0xBF4340D9.png
+	editors_creature~!0xDFADBF0F.png
+end
+texts paletteCategoryName
+	(be_paint!0x7e890df2) "Paintbrush Mode"
+end
+uint32 paletteCategorySequenceNumber 500

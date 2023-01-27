@@ -1,0 +1,5 @@
+key parent palette_config~!TemplatePaletteBlockPaint.prop
+string16 description "Tech"
+key palettePageParentCategory creature_paint_palette_category~!ACP_ce_category_paintbrush
+uint32 palettePageSequenceNumber 250
+int32 palettePageSetId 1
