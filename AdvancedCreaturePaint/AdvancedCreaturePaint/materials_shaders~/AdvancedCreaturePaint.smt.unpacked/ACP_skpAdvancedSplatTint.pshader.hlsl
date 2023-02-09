@@ -4,45 +4,6 @@ struct cVertOut
 	float3 texcoord1 : TEXCOORD1;  // this is the actual texcoord for sampling the texture
 };
 
-/*sampler2D rigblockDiffuseTexture : register(s0);
-sampler2D tintMaskTexture : register(s1);
-sampler2D baseTexture : register(s2);
-sampler2D coatTexture : register(s3);
-sampler2D detailTexture : register(s4);
-sampler2D identityTexture : register(s5);
-extern uniform struct {
-	float4 baseColor0;
-	float4 baseColor1;
-	float4 coatColor0;
-	float4 coatColor1;
-	float4 detailColor0;
-	float4 detailColor1;
-	float4 identityColor0;
-	float4 identityColor1;
-} customParams;
-
-float4 main(cVertOut In) : COLOR
-{
-	float4 rigblockDiffuse = tex2D(rigblockDiffuseTexture, In.texcoord1.xy);
-	
-	float baseColorBrightness = dot(customParams.baseColor0.rgb, float3(0.3, 0.6, 0.1));
-	float rigblockBrightness = dot(rigblockDiffuse.rgb, float3(0.3, 0.6, 0.1));
-	
-	float scale = lerp(0.98, 1.0, rigblockBrightness / (baseColorBrightness + 0.001));
-	
-	float4 tintMask = tex2D(tintMaskTexture, In.texcoord1.xy);
-	
-	float3 dstColor;
-	dstColor = scale * customParams.baseColor0.rgb - rigblockDiffuse.rgb;
-	dstColor = tintMask.x * dstColor + rigblockDiffuse.rgb;
-	rigblockDiffuse.rgb = scale * customParams.coatColor0 - dstColor;
-	dstColor = tintMask.y * rigblockDiffuse.rgb + dstColor;
-	rigblockDiffuse.rgb = scale * customParams.detailColor0 - dstColor;
-	dstColor = tintMask.z * rigblockDiffuse.rgb + dstColor;
-	
-	return float4(dstColor, 1.0);
-}*/
-
 sampler2D rigblockDiffuseTexture : register(s0);
 sampler2D tintMaskTexture : register(s1);
 sampler2D baseTexture : register(s2);
@@ -58,6 +19,7 @@ extern uniform struct {
 	float4 detailColor1;
 	float4 identityColor0;
 	float4 identityColor1;
+	float4 applyBaseColor;
 } customParams;
 
 float3 mixPaintColor(cVertOut In, sampler2D inputTexture, float4 color0, float4 color1)
@@ -69,19 +31,69 @@ float3 mixPaintColor(cVertOut In, sampler2D inputTexture, float4 color0, float4 
 
 float4 main(cVertOut In) : COLOR
 {
-	float4 clr = tex2D(rigblockDiffuseTexture, In.texcoord1.xy);
+	float4 diffuseTexture = tex2D(rigblockDiffuseTexture, In.texcoord1.xy);
 	float4 mask = tex2D(tintMaskTexture, In.texcoord1.xy);
 	
 	float3 baseColor = mixPaintColor(In, baseTexture, customParams.baseColor0, customParams.baseColor1);
 	float3 coatColor = mixPaintColor(In, coatTexture, customParams.coatColor0, customParams.coatColor1);
 	float3 detailColor = mixPaintColor(In, detailTexture, customParams.detailColor0, customParams.detailColor1);
+	float3 identityColor = mixPaintColor(In, detailTexture, customParams.identityColor0, customParams.identityColor1);
 
 	//float baseBrightness = dot(baseColor, float3(0.3, 0.6, 0.1));
 	//float rigblockBrightness = dot(clr.rgb, float3(0.3, 0.6, 0.1));
 	//float scale = lerp(1.0, rigblockBrightness / (baseBrightness + 0.001), 0.98);
-
-	float scale = 1.0;
-	float3 dstColor;
+	
+	// Spore multiplies each color (scale * baseColor) with a factor that depends on the ratio
+	// between the brightness of the diffuse texture and the base color
+	// We ignore it and just use 1.0 factor for now
+	
+	//float finalAlpha = diffuseTexture.a;
+	//float baseFactor = mask.x;
+	//if (customParams.applyBaseColor.r >= 1.0)
+	//{
+	//	finalAlpha = 1.0;
+	//	baseFactor += (1.0 - diffuseTexture.a);
+	//}
+	
+	//float3 colorDiff, colorMix;
+	//colorMix  = diffuseTexture.rgb;
+	// Apply base color
+	//colorDiff = baseColor - colorMix;
+	//colorMix  = baseFactor * colorDiff + colorMix;
+	// Apply coat color
+	//colorDiff = coatColor - colorMix;
+	//colorMix  = mask.y * colorDiff + colorMix;
+	// Apply detail color
+	//colorDiff = detailColor - colorMix;
+	//colorMix  = mask.z * colorDiff + colorMix;
+	// Apply identity color
+	//colorDiff = identityColor - colorMix;
+	//colorMix  = mask.a * colorDiff + colorMix;
+	
+	float3 colorDiff, colorMix;
+	colorMix  = diffuseTexture.rgb;
+	// Apply base color
+	colorDiff = baseColor - colorMix;
+	colorMix  = mask.x * colorDiff + colorMix;
+	// Apply coat color
+	colorDiff = coatColor - colorMix;
+	colorMix  = mask.y * colorDiff + colorMix;
+	// Apply detail color
+	colorDiff = detailColor - colorMix;
+	colorMix  = mask.z * colorDiff + colorMix;
+	// Apply identity color
+	colorDiff = identityColor - colorMix;
+	colorMix  = mask.a * colorDiff + colorMix;
+	
+	float finalAlpha = diffuseTexture.a;
+	if (customParams.applyBaseColor.r >= 1.0)
+	{
+		finalAlpha = 1.0;
+		colorMix = lerp(baseColor, colorMix, diffuseTexture.a);
+	}
+	return float4(colorMix, finalAlpha);
+	
+	/*float3 dstColor;
 	dstColor = scale * baseColor - clr.rgb;
 	dstColor = mask.x * dstColor + clr.rgb;
 	clr.rgb = scale * coatColor - dstColor;
@@ -90,8 +102,8 @@ float4 main(cVertOut In) : COLOR
 
 	float4 outputColor;
 	outputColor.a = clr.a;
-	outputColor.rgb = mask.z * clr.rgb + dstColor;
+	outputColor.rgb = mask.z * clr.rgb + dstColor;*/
 	//outputColor.rgb = tex2D(baseTexture, In.texcoord1.xy);
 	//outputColor.rgb = baseColor;
-	return outputColor;
+	//return outputColor;
 }

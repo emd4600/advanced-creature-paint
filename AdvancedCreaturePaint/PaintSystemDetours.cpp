@@ -3,8 +3,8 @@
 #include "AdvancedCreatureDataResource.h"
 
 
-const int NUM_EXTENDED_RASTERS = 6;
-const int NUM_EXTENDED_PARAMS = 8;
+const int NUM_EXTENDED_RASTERS = 7;
+const int NUM_EXTENDED_PARAMS = 11;
 bool sExtendedRenderEnabled = false;
 RenderWare::Raster* sExtendedRasters[NUM_EXTENDED_RASTERS] = {};
 Math::ColorRGBA sExtendedCustomParams[NUM_EXTENDED_PARAMS] = {};
@@ -18,53 +18,6 @@ void ResetExtendedRendering()
 }
 
 
-void PaintColoredTexture(
-	const Math::Vector2 uv1,
-	const Math::Vector2 uv2,
-	uint32_t materialID,
-	const AdvancedCreatureDataResource::PaintInfo& paintInfo, 
-	Skinner::cSkinnerTexturePainter* dstTexture,
-	Graphics::Texture* srcTexture)
-{
-	PropertyListPtr paintPropList;
-	if (PropManager.GetPropertyList(paintInfo.paintID, GroupIDs::Paints, paintPropList))
-	{
-		// paintMaterialCol1BlendFactor and paintMaterialCol2BlendFactor
-		float blendFactor1 = 0.5f, blendFactor2 = 0.5f;
-		App::Property::GetFloat(paintPropList.get(), 0x025E49BB, blendFactor1);
-		App::Property::GetFloat(paintPropList.get(), 0x0265FB07, blendFactor2);
-		// paintMaterialDiffuse
-		ResourceKey paintMaterialDiffuseID;
-		if (App::Property::GetKey(paintPropList.get(), 0xB0E066A4, paintMaterialDiffuseID))
-		{
-			auto paintTexture = TextureManager.GetTexture(paintMaterialDiffuseID, 
-				Graphics::kTextureFlagForceLoad | Graphics::kTextureFlagSetLOD);
-
-			Math::ColorRGBA color1 = paintInfo.color1;
-			Math::ColorRGBA color2 = paintInfo.color2;
-			color1.a = blendFactor1;
-			color2.a = blendFactor2;
-
-			dstTexture->SetColorWriteEnable(true, true, true, false);
-			dstTexture->mMaterialID = materialID;
-			dstTexture->AddCustomParams(0, color1);
-			dstTexture->AddCustomParams(1, color2);
-			dstTexture->AddRaster(0, paintTexture->GetLoadedRaster());
-			dstTexture->AddRaster(1, srcTexture->GetLoadedRaster());
-			dstTexture->PaintRegion(uv1, uv2);
-		}
-		else
-		{
-			SporeDebugPrint("ERROR: 'paintMaterialDiffuse' not defined for paint 0x%x", paintInfo.paintID);
-		}
-	}
-	else
-	{
-		SporeDebugPrint("ERROR: No prop list found for paint 0x%x", paintInfo.paintID);
-	}
-}
-
-
 bool PaintPartsJob_Execute__detour::detoured()
 {
 	auto texture0 = PaintSystem.GetPainter()->mpTexture0;
@@ -73,7 +26,6 @@ bool PaintPartsJob_Execute__detour::detoured()
 
 	auto creatureData = (AdvancedCreatureDataResource*)skinMesh->mpCreatureData;
 	int count = creatureData->mRigblocks.size();
-	auto paintInfos = creatureData->GetPaintInfos();
 	auto numPaintInfos = creatureData->GetNumPaintInfos();
 
 	if (mStage == 1)
@@ -171,7 +123,7 @@ bool PaintPartsJob_Execute__detour::detoured()
 		if (mStage == 0 && skinpaintDiffuseTexture && skinpaintTintMaskTexture)
 		{
 			bool hasAdvancedPaint = false;
-			const AdvancedCreatureDataResource::PaintInfo* paintInfos[4] = { nullptr, nullptr, nullptr, nullptr };
+			const AdvancedCreatureDataResource::PaintInfo* paintInfos[5] = { nullptr, nullptr, nullptr, nullptr, nullptr };
 
 			// Find if there is any advanced paint on this rigblock
 			for (; lastPaintInfoIndex < creatureData->GetNumPaintInfos(); lastPaintInfoIndex++)
@@ -201,7 +153,7 @@ bool PaintPartsJob_Execute__detour::detoured()
 				sExtendedRenderEnabled = true;
 				sExtendedRasters[0] = skinpaintDiffuseTexture->GetLoadedRaster();
 				sExtendedRasters[1] = skinpaintTintMaskTexture->GetLoadedRaster();
-				for (int i = 0; i < 4; i++)
+				for (int i = 0; i < 5; i++)
 				{
 					PropertyListPtr paintPropList;
 					if (paintInfos[i] && PropManager.GetPropertyList(paintInfos[i]->paintID, GroupIDs::Paints, paintPropList))
@@ -241,6 +193,7 @@ bool PaintPartsJob_Execute__detour::detoured()
 							sExtendedCustomParams[i * 2 + 0] = { 1.0f, 1.0f, 1.0f, 1.0f };
 						sExtendedCustomParams[i * 2 + 1] = { 0.0f, 0.0f, 0.0f, 0.0f };
 					}
+					sExtendedCustomParams[10].r = paintInfos[0] ? 2.0f : 0.0f;
 				}
 
 				texture0->SetColorWriteEnable(true, true, true, false);

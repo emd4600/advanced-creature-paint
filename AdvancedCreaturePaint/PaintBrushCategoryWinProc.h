@@ -18,6 +18,7 @@ public:
 		kRegionCoat = 1 << 1,
 		kRegionDetail = 1 << 2,
 		kRegionIdentity = 1 << 3,
+		kRegionTextured = 1 << 4,
 	};
 	enum class Mode
 	{
@@ -48,6 +49,7 @@ private:
 	IWindowPtr mButtonBase;
 	IWindowPtr mButtonCoat;
 	IWindowPtr mButtonDetail;
+	IWindowPtr mButtonTextured;
 	IWindowPtr mButtonIdentity;
 	int mSelectedRegions;
 	bool mIsSelectingMultipleRegions;

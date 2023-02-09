@@ -2,6 +2,15 @@
 #include "PaintBrushCategoryWinProc.h"
 
 PaintBrushCategoryWinProc::PaintBrushCategoryWinProc()
+	: mLayout()
+	, mButtonRemovePaint()
+	, mButtonBase()
+	, mButtonCoat()
+	, mButtonDetail()
+	, mButtonTextured()
+	, mButtonIdentity()
+	, mSelectedRegions(0)
+	, mIsSelectingMultipleRegions(false)
 {
 }
 
@@ -49,7 +58,8 @@ bool PaintBrushCategoryWinProc::HandleUIMessage(UTFWin::IWindow* window, const U
 		if (window == mButtonBase ||
 			window == mButtonCoat ||
 			window == mButtonDetail ||
-			window == mButtonIdentity)
+			window == mButtonIdentity ||
+			window == mButtonTextured)
 		{
 			mIsSelectingMultipleRegions = (message.Mouse.mouseState & MouseStateFlags::kMouseCtrlDown) != 0;
 		}
@@ -100,6 +110,7 @@ bool PaintBrushCategoryWinProc::HandleUIMessage(UTFWin::IWindow* window, const U
 					object_cast<UTFWin::IButton>(mButtonCoat)->SetButtonStateFlag(UTFWin::kBtnStateSelected, false);
 					object_cast<UTFWin::IButton>(mButtonDetail)->SetButtonStateFlag(UTFWin::kBtnStateSelected, false);
 					object_cast<UTFWin::IButton>(mButtonIdentity)->SetButtonStateFlag(UTFWin::kBtnStateSelected, false);
+					object_cast<UTFWin::IButton>(mButtonTextured)->SetButtonStateFlag(UTFWin::kBtnStateSelected, false);
 
 					button->SetButtonStateFlag(UTFWin::kBtnStateSelected, true);
 					mSelectedRegions = region;
@@ -137,8 +148,6 @@ void PaintBrushCategoryWinProc::AddToCategoryUI(Palettes::PaletteCategoryUI* cat
 	area = categoryUI->mpPagePanel->GetRealArea();
 	area.y1 += containerHeight;
 	categoryUI->mpPagePanel->SetLayoutArea(area);
-
-	WindowPtr testWindow = new UTFWin::Window();
 	mLayout->SetParentWindow(categoryUI->mpPageFrame.get());
 
 	// Place it in same spot as color picker, but use our custom height
@@ -149,6 +158,7 @@ void PaintBrushCategoryWinProc::AddToCategoryUI(Palettes::PaletteCategoryUI* cat
 	mButtonCoat = acpContainer->FindWindowByID(id("ButtonCoat"));
 	mButtonDetail = acpContainer->FindWindowByID(id("ButtonDetail"));
 	mButtonIdentity = acpContainer->FindWindowByID(id("ButtonIdentity"));
+	mButtonTextured = acpContainer->FindWindowByID(id("ButtonTextured"));
 	mButtonRemovePaint = acpContainer->FindWindowByID(id("ButtonRemovePaint"));
 
 	mSelectedRegions = kRegionBase;
@@ -157,6 +167,7 @@ void PaintBrushCategoryWinProc::AddToCategoryUI(Palettes::PaletteCategoryUI* cat
 	mButtonCoat->AddWinProc(this);
 	mButtonDetail->AddWinProc(this);
 	mButtonIdentity->AddWinProc(this);
+	mButtonTextured->AddWinProc(this);
 	mButtonRemovePaint->AddWinProc(this);
 }
 
@@ -183,5 +194,6 @@ PaintBrushCategoryWinProc::Regions PaintBrushCategoryWinProc::GetRegionForButton
 	if (window == mButtonCoat.get()) return kRegionCoat;
 	if (window == mButtonDetail.get()) return kRegionDetail;
 	if (window == mButtonIdentity.get()) return kRegionIdentity;
+	if (window == mButtonTextured.get()) return kRegionTextured;
 	return kRegionNone;
 }
