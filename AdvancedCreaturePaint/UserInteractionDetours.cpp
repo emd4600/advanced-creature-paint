@@ -185,6 +185,7 @@ bool Editor_OnMouseUp__detour::detoured(MouseButton mouseButton, float mouseX, f
 				if (sCategoryWinProc->RegionIsSelected(PaintBrushCategoryWinProc::kRegionCoat)) regions.push_back(1);
 				if (sCategoryWinProc->RegionIsSelected(PaintBrushCategoryWinProc::kRegionDetail)) regions.push_back(2);
 				if (sCategoryWinProc->RegionIsSelected(PaintBrushCategoryWinProc::kRegionIdentity)) regions.push_back(3);
+				if (sCategoryWinProc->RegionIsSelected(PaintBrushCategoryWinProc::kRegionTextured)) regions.push_back(4);
 
 				if (sCategoryWinProc->GetActiveMode() == PaintBrushCategoryWinProc::Mode::Paint)
 				{

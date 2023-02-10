@@ -10,6 +10,7 @@ sampler2D baseTexture : register(s2);
 sampler2D coatTexture : register(s3);
 sampler2D detailTexture : register(s4);
 sampler2D identityTexture : register(s5);
+sampler2D texturedTexture : register(s6);
 extern uniform struct {
 	float4 baseColor0;
 	float4 baseColor1;
@@ -19,7 +20,9 @@ extern uniform struct {
 	float4 detailColor1;
 	float4 identityColor0;
 	float4 identityColor1;
-	float4 applyBaseColor;
+	float4 texturedColor0;
+	float4 texturedColor1;
+	float4 applyBaseTexturedColor;
 } customParams;
 
 float3 mixPaintColor(cVertOut In, sampler2D inputTexture, float4 color0, float4 color1)
@@ -71,7 +74,13 @@ float4 main(cVertOut In) : COLOR
 	//colorMix  = mask.a * colorDiff + colorMix;
 	
 	float3 colorDiff, colorMix;
-	colorMix  = diffuseTexture.rgb;
+	if (customParams.applyBaseTexturedColor.g >= 1.0)
+	{
+		float3 texturedColor = mixPaintColor(In, texturedTexture, customParams.texturedColor0, customParams.texturedColor1);
+		colorMix = texturedColor;
+	}
+	else
+		colorMix = diffuseTexture.rgb;
 	// Apply base color
 	colorDiff = baseColor - colorMix;
 	colorMix  = mask.x * colorDiff + colorMix;
@@ -86,7 +95,7 @@ float4 main(cVertOut In) : COLOR
 	colorMix  = mask.a * colorDiff + colorMix;
 	
 	float finalAlpha = diffuseTexture.a;
-	if (customParams.applyBaseColor.r >= 1.0)
+	if (customParams.applyBaseTexturedColor.r >= 1.0)
 	{
 		finalAlpha = 1.0;
 		colorMix = lerp(baseColor, colorMix, diffuseTexture.a);

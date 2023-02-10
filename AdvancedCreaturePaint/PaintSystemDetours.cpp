@@ -194,6 +194,7 @@ bool PaintPartsJob_Execute__detour::detoured()
 						sExtendedCustomParams[i * 2 + 1] = { 0.0f, 0.0f, 0.0f, 0.0f };
 					}
 					sExtendedCustomParams[10].r = paintInfos[0] ? 2.0f : 0.0f;
+					sExtendedCustomParams[10].g = paintInfos[4] ? 2.0f : 0.0f;
 				}
 
 				texture0->SetColorWriteEnable(true, true, true, false);
