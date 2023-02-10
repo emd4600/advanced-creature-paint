@@ -87,7 +87,8 @@ void AdvancedCreatureDataResource::SetPaintInfo(const PaintInfo& info)
 
 bool AdvancedCreatureDataResource::RemovePaintInfo(int16_t rigblockIndex, int16_t paintRegion)
 {
-	auto infos = (PaintInfo*)(mAnimationWeights.data() + mAnimationValues.size());
+	auto numAnimations = mAnimationValues.size();
+	auto infos = (PaintInfo*)(mAnimationWeights.data() + numAnimations);
 	int count = GetNumPaintInfos();
 
 	for (int i = 0; i < count; i++)
@@ -100,8 +101,8 @@ bool AdvancedCreatureDataResource::RemovePaintInfo(int16_t rigblockIndex, int16_
 		}
 		else if (infos[i].rigblockIndex == rigblockIndex && infos[i].paintRegion == paintRegion)
 		{
-			auto eraseFirst = mAnimationWeights.begin() + i;
-			auto eraseLast = mAnimationWeights.begin() + i + PAINT_INFO_NUM_WORDS;
+			auto eraseFirst = mAnimationWeights.begin() + numAnimations + i * PAINT_INFO_NUM_WORDS;
+			auto eraseLast = mAnimationWeights.begin() + numAnimations + (i + 1) * PAINT_INFO_NUM_WORDS;
 			mAnimationWeights.erase(eraseFirst, eraseLast);
 			return true;
 		}
