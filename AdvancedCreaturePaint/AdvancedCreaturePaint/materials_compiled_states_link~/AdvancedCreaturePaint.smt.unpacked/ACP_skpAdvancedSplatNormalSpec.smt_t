@@ -1,27 +1,31 @@
-compiledState state-0
-	shaderID ACP_skpAdvancedSplatTint
+compiledState state
+	shaderID ACP_skpAdvancedSplatNormalSpec
 
 	flags1 0x4
 	flags3 0x80000
 
-	vertexDescription -field_4 0x14a85d0
+	vertexDescription -field_4 0x14a93a0
 		element position D3DDECLTYPE_FLOAT3
 		element texcoord0 D3DDECLTYPE_FLOAT2
 		element texcoord1 D3DDECLTYPE_FLOAT3
 		element color D3DDECLTYPE_D3DCOLOR
 	end
 
-	statesGroup 0
-		renderState D3DRS_SRCBLEND D3DBLEND_SRCALPHA
-		renderState D3DRS_DESTBLEND D3DBLEND_INVSRCALPHA
-		renderState D3DRS_ALPHABLENDENABLE TRUE
-	end
-	statesGroup 5
-		renderState D3DRS_BLENDOP D3DBLENDOP_ADD
-	end
+	renderState D3DRS_SRCBLEND D3DBLEND_ONE
+	renderState D3DRS_DESTBLEND D3DBLEND_ZERO
+	renderState D3DRS_ALPHABLENDENABLE FALSE
 	
-	# This is the rigblock diffuse texture
+	# Source normal-spec map of the creature
 	textureSlot 0
+		samplerState D3DSAMP_ADDRESSU D3DTADDRESS_CLAMP
+		samplerState D3DSAMP_ADDRESSV D3DTADDRESS_CLAMP
+		samplerState D3DSAMP_MAGFILTER D3DTEXF_LINEAR
+		samplerState D3DSAMP_MINFILTER D3DTEXF_LINEAR
+		samplerState D3DSAMP_MIPFILTER D3DTEXF_NONE
+	end
+
+	# This is the rigblock diffuse texture
+	textureSlot 1
 		samplerState D3DSAMP_ADDRESSU D3DTADDRESS_WRAP
 		samplerState D3DSAMP_ADDRESSV D3DTADDRESS_WRAP
 		samplerState D3DSAMP_MAGFILTER D3DTEXF_LINEAR
@@ -29,14 +33,6 @@ compiledState state-0
 	end
 	
 	# This is the rigblock tintMask texture
-	textureSlot 1
-		samplerState D3DSAMP_ADDRESSU D3DTADDRESS_BORDER
-		samplerState D3DSAMP_ADDRESSV D3DTADDRESS_BORDER
-		samplerState D3DSAMP_MAGFILTER D3DTEXF_LINEAR
-		samplerState D3DSAMP_MINFILTER D3DTEXF_LINEAR
-	end
-	
-	# This is the base paint texture
 	textureSlot 2
 		samplerState D3DSAMP_ADDRESSU D3DTADDRESS_BORDER
 		samplerState D3DSAMP_ADDRESSV D3DTADDRESS_BORDER
@@ -44,7 +40,7 @@ compiledState state-0
 		samplerState D3DSAMP_MINFILTER D3DTEXF_LINEAR
 	end
 	
-	# This is the coat paint texture
+	# This is the base paint texture
 	textureSlot 3
 		samplerState D3DSAMP_ADDRESSU D3DTADDRESS_BORDER
 		samplerState D3DSAMP_ADDRESSV D3DTADDRESS_BORDER
@@ -52,7 +48,7 @@ compiledState state-0
 		samplerState D3DSAMP_MINFILTER D3DTEXF_LINEAR
 	end
 	
-	# This is the detail paint texture
+	# This is the coat paint texture
 	textureSlot 4
 		samplerState D3DSAMP_ADDRESSU D3DTADDRESS_BORDER
 		samplerState D3DSAMP_ADDRESSV D3DTADDRESS_BORDER
@@ -60,7 +56,7 @@ compiledState state-0
 		samplerState D3DSAMP_MINFILTER D3DTEXF_LINEAR
 	end
 	
-	# This is the identity paint texture
+	# This is the detail paint texture
 	textureSlot 5
 		samplerState D3DSAMP_ADDRESSU D3DTADDRESS_BORDER
 		samplerState D3DSAMP_ADDRESSV D3DTADDRESS_BORDER
@@ -68,8 +64,16 @@ compiledState state-0
 		samplerState D3DSAMP_MINFILTER D3DTEXF_LINEAR
 	end
 	
-	# This is the "textured region" paint texture
+	# This is the identity paint texture
 	textureSlot 6
+		samplerState D3DSAMP_ADDRESSU D3DTADDRESS_BORDER
+		samplerState D3DSAMP_ADDRESSV D3DTADDRESS_BORDER
+		samplerState D3DSAMP_MAGFILTER D3DTEXF_LINEAR
+		samplerState D3DSAMP_MINFILTER D3DTEXF_LINEAR
+	end
+	
+	# This is the "textured region" paint texture
+	textureSlot 7
 		samplerState D3DSAMP_ADDRESSU D3DTADDRESS_BORDER
 		samplerState D3DSAMP_ADDRESSV D3DTADDRESS_BORDER
 		samplerState D3DSAMP_MAGFILTER D3DTEXF_LINEAR
@@ -77,5 +81,4 @@ compiledState state-0
 	end
 end
 
-# This material paints the given paint diffuse texture with building paint coloring on 'customParams'
-material ACP_skpAdvancedSplatTint -states state-0
+material ACP_skpAdvancedSplatNormalSpec -states state

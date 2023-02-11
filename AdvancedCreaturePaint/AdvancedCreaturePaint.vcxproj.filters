@@ -31,6 +31,9 @@
     <ClInclude Include="PaintBrushCategoryWinProc.h">
       <Filter>AdvancedCreaturePaint</Filter>
     </ClInclude>
+    <ClInclude Include="Constants.h">
+      <Filter>AdvancedCreaturePaint</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp">

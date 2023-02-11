@@ -49,32 +49,9 @@ float4 main(cVertOut In) : COLOR
 	// Spore multiplies each color (scale * baseColor) with a factor that depends on the ratio
 	// between the brightness of the diffuse texture and the base color
 	// We ignore it and just use 1.0 factor for now
-	
-	//float finalAlpha = diffuseTexture.a;
-	//float baseFactor = mask.x;
-	//if (customParams.applyBaseColor.r >= 1.0)
-	//{
-	//	finalAlpha = 1.0;
-	//	baseFactor += (1.0 - diffuseTexture.a);
-	//}
-	
-	//float3 colorDiff, colorMix;
-	//colorMix  = diffuseTexture.rgb;
-	// Apply base color
-	//colorDiff = baseColor - colorMix;
-	//colorMix  = baseFactor * colorDiff + colorMix;
-	// Apply coat color
-	//colorDiff = coatColor - colorMix;
-	//colorMix  = mask.y * colorDiff + colorMix;
-	// Apply detail color
-	//colorDiff = detailColor - colorMix;
-	//colorMix  = mask.z * colorDiff + colorMix;
-	// Apply identity color
-	//colorDiff = identityColor - colorMix;
-	//colorMix  = mask.a * colorDiff + colorMix;
-	
+
 	float3 colorDiff, colorMix;
-	if (customParams.applyBaseTexturedColor.g >= 1.0)
+	if (customParams.applyBaseTexturedColor.g > 0.0)
 	{
 		float3 texturedColor = mixPaintColor(In, texturedTexture, customParams.texturedColor0, customParams.texturedColor1);
 		colorMix = texturedColor;
@@ -95,24 +72,10 @@ float4 main(cVertOut In) : COLOR
 	colorMix  = mask.a * colorDiff + colorMix;
 	
 	float finalAlpha = diffuseTexture.a;
-	if (customParams.applyBaseTexturedColor.r >= 1.0)
+	if (customParams.applyBaseTexturedColor.r > 0.0)
 	{
 		finalAlpha = 1.0;
 		colorMix = lerp(baseColor, colorMix, diffuseTexture.a);
 	}
 	return float4(colorMix, finalAlpha);
-	
-	/*float3 dstColor;
-	dstColor = scale * baseColor - clr.rgb;
-	dstColor = mask.x * dstColor + clr.rgb;
-	clr.rgb = scale * coatColor - dstColor;
-	dstColor = mask.y * clr.rgb + dstColor;
-	clr.rgb = scale * detailColor - dstColor;
-
-	float4 outputColor;
-	outputColor.a = clr.a;
-	outputColor.rgb = mask.z * clr.rgb + dstColor;*/
-	//outputColor.rgb = tex2D(baseTexture, In.texcoord1.xy);
-	//outputColor.rgb = baseColor;
-	//return outputColor;
 }

@@ -1,9 +1,10 @@
 #include "stdafx.h"
 #include "PaintSystemDetours.h"
 #include "AdvancedCreatureDataResource.h"
+#include "Constants.h"
 
 
-const int NUM_EXTENDED_RASTERS = 7;
+const int NUM_EXTENDED_RASTERS = 8;
 const int NUM_EXTENDED_PARAMS = 11;
 bool sExtendedRenderEnabled = false;
 RenderWare::Raster* sExtendedRasters[NUM_EXTENDED_RASTERS] = {};
@@ -123,7 +124,7 @@ bool PaintPartsJob_Execute__detour::detoured()
 		if (mStage == 0 && skinpaintDiffuseTexture && skinpaintTintMaskTexture)
 		{
 			bool hasAdvancedPaint = false;
-			const AdvancedCreatureDataResource::PaintInfo* paintInfos[5] = { nullptr, nullptr, nullptr, nullptr, nullptr };
+			const AdvancedCreatureDataResource::PaintInfo* paintInfos[AdvancedCreaturePaint::NUM_REGIONS] = {};
 
 			// Find if there is any advanced paint on this rigblock
 			for (; lastPaintInfoIndex < creatureData->GetNumPaintInfos(); lastPaintInfoIndex++)
@@ -153,7 +154,7 @@ bool PaintPartsJob_Execute__detour::detoured()
 				sExtendedRenderEnabled = true;
 				sExtendedRasters[0] = skinpaintDiffuseTexture->GetLoadedRaster();
 				sExtendedRasters[1] = skinpaintTintMaskTexture->GetLoadedRaster();
-				for (int i = 0; i < 5; i++)
+				for (int i = 0; i < AdvancedCreaturePaint::NUM_REGIONS; i++)
 				{
 					PropertyListPtr paintPropList;
 					if (paintInfos[i] && PropManager.GetPropertyList(paintInfos[i]->paintID, GroupIDs::Paints, paintPropList))
@@ -193,8 +194,8 @@ bool PaintPartsJob_Execute__detour::detoured()
 							sExtendedCustomParams[i * 2 + 0] = { 1.0f, 1.0f, 1.0f, 1.0f };
 						sExtendedCustomParams[i * 2 + 1] = { 0.0f, 0.0f, 0.0f, 0.0f };
 					}
-					sExtendedCustomParams[10].r = paintInfos[0] ? 2.0f : 0.0f;
-					sExtendedCustomParams[10].g = paintInfos[4] ? 2.0f : 0.0f;
+					sExtendedCustomParams[10].r = paintInfos[AdvancedCreaturePaint::kBase] ? 1.0f : 0.0f;
+					sExtendedCustomParams[10].g = paintInfos[AdvancedCreaturePaint::kTextured] ? 1.0f : 0.0f;
 				}
 
 				texture0->SetColorWriteEnable(true, true, true, false);
@@ -207,7 +208,6 @@ bool PaintPartsJob_Execute__detour::detoured()
 				texture0->SetColorWriteEnable(true, true, true, false);
 				// Uses 0x700000ad(skpSplatTintShader).shader
 				texture0->mMaterialID = 0xD9EC39BC;  // skpSplatTint
-				//texture0->mMaterialID = id("ACP_skpAdvancedSplatTint");
 				texture0->AddCustomParams(0, baseColor);
 				texture0->AddCustomParams(1, coatColor);
 				texture0->AddCustomParams(2, detailColor);
@@ -215,55 +215,6 @@ bool PaintPartsJob_Execute__detour::detoured()
 				texture0->AddRaster(1, skinpaintTintMaskTexture->GetLoadedRaster());
 				texture0->PaintRegion(uv1, uv2);
 			}
-
-			/*// We want the base paint to affect things marked as base in the tintmask, 
-			// BUT also things that are transparent in the part diffuse texture; for that we have to paint before
-			if (paintInfos[0])
-			{
-				baseColor = paintInfos[0]->color1;
-				/*texture0->SetColorWriteEnable(true, true, true, false);
-				texture0->mMaterialID = id("ACP_skpPlainColor");
-				texture0->AddCustomParams(0, baseColor);
-				texture0->PaintRegion(uv1, uv2);
-			}
-			if (paintInfos[1]) coatColor = paintInfos[1]->color1;
-			if (paintInfos[2]) detailColor = paintInfos[2]->color1;
-
-			texture0->SetColorWriteEnable(true, true, true, false);
-			// Uses 0x700000ad(skpSplatTintShader).shader
-			texture0->mMaterialID = 0xD9EC39BC;  // skpSplatTint
-			texture0->AddCustomParams(0, baseColor);
-			texture0->AddCustomParams(1, coatColor);
-			texture0->AddCustomParams(2, detailColor);
-			texture0->AddRaster(0, skinpaintDiffuseTexture->GetLoadedRaster());
-			texture0->AddRaster(1, skinpaintTintMaskTexture->GetLoadedRaster());
-			texture0->PaintRegion(uv1, uv2);
-
-			if (paintInfos[0] && paintInfos[0]->paintID != 0)
-			{
-				PaintColoredTexture(uv1, uv2, id("ACP_skpColoredTexture_tintMaskR"), *paintInfos[0], texture0, skinpaintTintMaskTexture);
-			}
-			if (paintInfos[1] && paintInfos[1]->paintID != 0)
-			{
-				PaintColoredTexture(uv1, uv2, id("ACP_skpColoredTexture_tintMaskG"), *paintInfos[1], texture0, skinpaintTintMaskTexture);
-			}
-			if (paintInfos[2] && paintInfos[2]->paintID != 0)
-			{
-				PaintColoredTexture(uv1, uv2, id("ACP_skpColoredTexture_tintMaskB"), *paintInfos[2], texture0, skinpaintTintMaskTexture);
-			}
-			if (paintInfos[3] && paintInfos[3]->paintID != 0)
-			{
-				PaintColoredTexture(uv1, uv2, id("ACP_skpColoredTexture_tintMaskA"), *paintInfos[3], texture0, skinpaintTintMaskTexture);
-			}
-
-			if (paintInfos[3])
-			{
-				texture0->SetColorWriteEnable(true, true, true, false);
-				texture0->mMaterialID = id("ACP_skpPaintIdentity");
-				texture0->AddCustomParams(0, paintInfos[3]->color1);
-				texture0->AddRaster(0, skinpaintTintMaskTexture->GetLoadedRaster());
-				texture0->PaintRegion(uv1, uv2);
-			}*/
 		}
 		if (mStage == 1 && skinpaintTintMaskTexture)
 		{
@@ -311,6 +262,160 @@ bool PaintPartsJob_Execute__detour::detoured()
 		mStage++;
 	}
 	return mStage == 4;
+}
+
+
+// BumpToNormal job does not have any fields. We want to do this
+// to avoid the game from hanging up in creatures with lots of parts
+// Note: I don't know if there can ever be two jobs at the same time,
+// but let's use a map just in case
+eastl::map<Skinner::cSkinPainterJobBumpToNormal*, int> BumpToNormalJob_mRigblockIndex;
+bool BumpToNormalJob_mRigblockIndex_Initialized = false;
+// I don't know if this is ever relevant
+
+bool BumpToNormalJob_Execute__detour::detoured()
+{
+	original_function(this);
+	//return ret;
+
+	if (!BumpToNormalJob_mRigblockIndex_Initialized) 
+	{
+		BumpToNormalJob_mRigblockIndex = {};
+		BumpToNormalJob_mRigblockIndex_Initialized = true;
+	}
+
+	int* mRigblockIndex;
+	if (BumpToNormalJob_mRigblockIndex.find(this) == BumpToNormalJob_mRigblockIndex.end())
+	{
+		BumpToNormalJob_mRigblockIndex[this] = 0;
+	}
+	mRigblockIndex = &BumpToNormalJob_mRigblockIndex[this];
+
+	// The paints from building/vehicle editor do not use bump mapping,
+	// and use normal map instead. So we apply it after conversion.
+
+	auto dstTexture = PaintSystem.GetPainter()->mpTexture2;
+	auto skinMesh = PaintSystem.GetSkinMesh();
+
+	dstTexture->StartRender();
+
+	auto creatureData = (AdvancedCreatureDataResource*)skinMesh->mpCreatureData;
+	int count = creatureData->mRigblocks.size();
+	auto numPaintInfos = creatureData->GetNumPaintInfos();
+
+	int lastPaintInfoIndex = 0;
+	int rigblockLimitCount = 0;
+	while (*mRigblockIndex < count && rigblockLimitCount < 10)
+	{
+		if (creatureData->mRigblocks[*mRigblockIndex].mFlags & Editors::cCreatureDataResource::kFlagNotUseSkin)
+		{
+			(*mRigblockIndex)++;
+			continue;
+		}
+
+		auto& uvs = skinMesh->mUVs[*mRigblockIndex];
+		Vector2 uv1{ uvs.x1, uvs.y1 };
+		Vector2 uv2{ uvs.x2, uvs.y2 };
+		auto propList = skinMesh->mRigblockPropLists[*mRigblockIndex].get();
+
+		bool hasAdvancedPaint = false;
+		const AdvancedCreatureDataResource::PaintInfo* paintInfos[AdvancedCreaturePaint::NUM_REGIONS] = {};
+
+		// Find if there is any advanced paint on this rigblock
+		for (; lastPaintInfoIndex < creatureData->GetNumPaintInfos(); lastPaintInfoIndex++)
+		{
+			const auto& paintInfo = creatureData->GetPaintInfos()[lastPaintInfoIndex];
+			if (paintInfo.rigblockIndex == *mRigblockIndex)
+			{
+				paintInfos[paintInfo.paintRegion] = &paintInfo;
+				hasAdvancedPaint = true;
+			}
+			else if (paintInfo.rigblockIndex > *mRigblockIndex)
+			{
+				// They are ordered by rigblock index, so if we reach this it means this rigblock had no paint info
+				break;
+			}
+		}
+
+		if (hasAdvancedPaint)
+		{
+			// There is no point in increasing this if there is no rendering to be done,
+			// it would just make painting slower for no reason.
+			rigblockLimitCount++;
+
+			TexturePtr whiteTexture = TextureManager.GetTexture(ResourceKey(id("ACP_white"), TypeIDs::raster, GroupIDs::Global),
+				Graphics::kTextureFlagForceLoad | Graphics::kTextureFlagSetLOD);
+
+			Graphics::Texture* skinpaintDiffuseTexture = nullptr;
+			Graphics::Texture* skinpaintTintMaskTexture = nullptr;
+			// skinpaintDiffuseTexture
+			if (propList->HasProperty(0x2424655))
+			{
+				ResourceKey key{};
+				App::Property::GetKey(propList, 0x2424655, key);
+				if (TextureManager.HasTexture(key))
+				{
+					skinpaintDiffuseTexture = TextureManager.GetTexture(key,
+						Graphics::kTextureFlagForceLoad | Graphics::kTextureFlagSetLOD);
+				}
+			}
+			// skinpaintTintMaskTexture
+			if (propList->HasProperty(0x2424657))
+			{
+				ResourceKey key{};
+				App::Property::GetKey(propList, 0x2424657, key);
+				if (TextureManager.HasTexture(key))
+				{
+					skinpaintTintMaskTexture = TextureManager.GetTexture(key,
+						Graphics::kTextureFlagForceLoad | Graphics::kTextureFlagSetLOD);
+				}
+			}
+
+			sExtendedRenderEnabled = true;
+
+			sExtendedRasters[0] = PaintSystem.GetPainter()->mpTexture2->GetRaster();
+			sExtendedRasters[1] = skinpaintDiffuseTexture->GetLoadedRaster();
+			sExtendedRasters[2] = skinpaintTintMaskTexture->GetLoadedRaster();
+
+			for (int i = 0; i < AdvancedCreaturePaint::NUM_REGIONS; i++)
+			{
+				PropertyListPtr paintPropList;
+				if (paintInfos[i] && PropManager.GetPropertyList(paintInfos[i]->paintID, GroupIDs::Paints, paintPropList))
+				{
+					// paintMaterialNMapSpec
+					ResourceKey paintMaterialNMapSpecID;
+					if (App::Property::GetKey(paintPropList.get(), 0xB0E066A5, paintMaterialNMapSpecID))
+					{
+						auto paintTexture = TextureManager.GetTexture(paintMaterialNMapSpecID,
+							Graphics::kTextureFlagForceLoad | Graphics::kTextureFlagSetLOD);
+
+						sExtendedRasters[i + 3] = paintTexture->GetLoadedRaster();
+					}
+					else
+					{
+						sExtendedRasters[i + 3] = whiteTexture->GetLoadedRaster();
+					}
+				}
+			}
+
+			sExtendedCustomParams[0].r = paintInfos[AdvancedCreaturePaint::kBase] ? 1.0f : 0.0f;
+			sExtendedCustomParams[0].g = paintInfos[AdvancedCreaturePaint::kCoat] ? 1.0f : 0.0f;
+			sExtendedCustomParams[0].b = paintInfos[AdvancedCreaturePaint::kDetail] ? 1.0f : 0.0f;
+			sExtendedCustomParams[0].a = paintInfos[AdvancedCreaturePaint::kIdentity] ? 1.0f : 0.0f;
+			sExtendedCustomParams[1].r = paintInfos[AdvancedCreaturePaint::kTextured] ? 1.0f : 0.0f;
+
+			dstTexture->SetColorWriteEnable(true, true, true, true);
+			dstTexture->mMaterialID = id("ACP_skpAdvancedSplatNormalSpec");
+			dstTexture->PaintRegion(uv1, uv2);
+			ResetExtendedRendering();
+		}
+
+		(*mRigblockIndex)++;
+	}
+
+	dstTexture->EndRender();
+
+	return true;
 }
 
 

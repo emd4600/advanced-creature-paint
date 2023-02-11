@@ -188,6 +188,7 @@ void AttachDetours()
 	//Test__detour::attach(Address(0x4BECA0));
 
 	PaintPartsJob_Execute__detour::attach(GetAddress(Skinner::cSkinPainterJobPaintParts, Execute));
+	BumpToNormalJob_Execute__detour::attach(GetAddress(Skinner::cSkinPainterJobBumpToNormal, Execute));
 	cSkinnerTexturePainter_LoadMaterial__detour::attach(GetAddress(Skinner::cSkinnerTexturePainter, LoadMaterial));
 
 	AdvancedCreatureDataResource::AttachDetours();

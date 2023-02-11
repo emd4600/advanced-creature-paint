@@ -99,6 +99,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="AdvancedCreatureDataResource.h" />
+    <ClInclude Include="Constants.h" />
     <ClInclude Include="PaintBrushCategoryWinProc.h">
       <SubType>
       </SubType>
