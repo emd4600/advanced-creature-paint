@@ -45,9 +45,13 @@ float4 main(cVertOut In) : COLOR
 	{
 		colorMix = lerp(baseNormSpec, sourceNormSpec, diffuseTexture.a);
 	}
-	else
+	else if (customParams.applyColor1.r > 0.0)
 	{
 		colorMix = lerp(sourceNormSpec, texturedNormSpec, diffuseTexture.a);
+	}
+	else
+	{
+		colorMix = sourceNormSpec;
 	}
 	// Apply base color
 	colorDiff = baseNormSpec - colorMix;

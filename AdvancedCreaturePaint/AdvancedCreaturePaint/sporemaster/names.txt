@@ -368,6 +368,7 @@ ve_airship_54
 be_zany_28
 ACP_skpBuildingTexture
 Tool
+ACP_skpAdvancedSplatNormalSpec
 be_zany_21
 ACP_skpColoredTexture_tintMaskR
 be_zany_26
