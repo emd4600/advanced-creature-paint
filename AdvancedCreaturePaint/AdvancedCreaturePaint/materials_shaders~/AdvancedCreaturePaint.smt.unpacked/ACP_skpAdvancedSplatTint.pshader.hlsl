@@ -22,7 +22,8 @@ extern uniform struct {
 	float4 identityColor1;
 	float4 texturedColor0;
 	float4 texturedColor1;
-	float4 applyBaseTexturedColor;
+	// r=base, g=identity, b=textured, 1.0 if must apply, 0.0 otherwise
+	float4 applyColor;
 } customParams;
 
 float3 mixPaintColor(cVertOut In, sampler2D inputTexture, float4 color0, float4 color1)
@@ -49,15 +50,22 @@ float4 main(cVertOut In) : COLOR
 	// Spore multiplies each color (scale * baseColor) with a factor that depends on the ratio
 	// between the brightness of the diffuse texture and the base color
 	// We ignore it and just use 1.0 factor for now
+	
+	// base, coat, detail are always applied;
+	// if paints are not specified, they use a white texture that gets the
+	// current creature base/coat/detail color
 
 	float3 colorDiff, colorMix;
-	if (customParams.applyBaseTexturedColor.g > 0.0)
+	// Apply textured region paint?
+	if (customParams.applyColor.b > 0.0)
 	{
 		float3 texturedColor = mixPaintColor(In, texturedTexture, customParams.texturedColor0, customParams.texturedColor1);
 		colorMix = texturedColor;
 	}
 	else
+	{
 		colorMix = diffuseTexture.rgb;
+	}
 	// Apply base color
 	colorDiff = baseColor - colorMix;
 	colorMix  = mask.x * colorDiff + colorMix;
@@ -67,12 +75,16 @@ float4 main(cVertOut In) : COLOR
 	// Apply detail color
 	colorDiff = detailColor - colorMix;
 	colorMix  = mask.z * colorDiff + colorMix;
-	// Apply identity color
-	colorDiff = identityColor - colorMix;
-	colorMix  = mask.a * colorDiff + colorMix;
+	// Apply identity color ?
+	if (customParams.applyColor.g > 0.0)
+	{
+		colorDiff = identityColor - colorMix;
+		colorMix  = mask.a * colorDiff + colorMix;
+	}
 	
 	float finalAlpha = diffuseTexture.a;
-	if (customParams.applyBaseTexturedColor.r > 0.0)
+	// Apply base paint?
+	if (customParams.applyColor.r > 0.0)
 	{
 		finalAlpha = 1.0;
 		colorMix = lerp(baseColor, colorMix, diffuseTexture.a);
