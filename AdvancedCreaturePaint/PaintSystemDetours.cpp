@@ -16,6 +16,12 @@ void ResetExtendedRendering()
 	memset(sExtendedRasters, 0, sizeof(sExtendedRasters));
 	memset(sExtendedCustomParams, 0, sizeof(sExtendedCustomParams));
 	sExtendedRenderEnabled = false;
+
+	for (int i = 0; i < NUM_EXTENDED_RASTERS; i++)
+	{
+		Graphics::ActiveState::SetTexture(i, nullptr);
+		Graphics::ActiveState::SetRasterDelta(Graphics::ActiveState::GetRasterDelta() | (1 << i));
+	}
 }
 
 
@@ -121,7 +127,7 @@ bool PaintPartsJob_Execute__detour::detoured()
 			}
 		}
 
-		if (mStage == 0 && skinpaintDiffuseTexture && skinpaintTintMaskTexture)
+		if (mStage == 0)
 		{
 			bool hasAdvancedPaint = false;
 			const AdvancedCreatureDataResource::PaintInfo* paintInfos[AdvancedCreaturePaint::NUM_REGIONS] = {};
@@ -140,6 +146,24 @@ bool PaintPartsJob_Execute__detour::detoured()
 					// They are ordered by rigblock index, so if we reach this it means this rigblock had no paint info
 					break;
 				}
+			}
+
+			// Default Spore case: when no textures, just ignore
+			if (!hasAdvancedPaint && (!skinpaintDiffuseTexture || !skinpaintTintMaskTexture))
+			{
+				continue;
+			}
+			// If we do have advanced paint, then replace empty textures
+			// Some mods (Locked n Loaded) have some missing textures, compensate that
+			if (!skinpaintDiffuseTexture)
+			{
+				skinpaintDiffuseTexture = TextureManager.GetTexture(ResourceKey(id("ACP_transparent"), TypeIDs::raster, GroupIDs::Global),
+					Graphics::kTextureFlagForceLoad | Graphics::kTextureFlagSetLOD);
+			}
+			if (!skinpaintTintMaskTexture)
+			{
+				skinpaintTintMaskTexture = TextureManager.GetTexture(ResourceKey(id("ACP_black"), TypeIDs::raster, GroupIDs::Global),
+					Graphics::kTextureFlagForceLoad | Graphics::kTextureFlagSetLOD);
 			}
 
 			Math::ColorRGBA baseColor{ Skinner::GetCurrentColors()[0], 0.0f };
@@ -195,7 +219,8 @@ bool PaintPartsJob_Execute__detour::detoured()
 						sExtendedCustomParams[i * 2 + 1] = { 0.0f, 0.0f, 0.0f, 0.0f };
 					}
 					sExtendedCustomParams[10].r = paintInfos[AdvancedCreaturePaint::kBase] ? 1.0f : 0.0f;
-					sExtendedCustomParams[10].g = paintInfos[AdvancedCreaturePaint::kTextured] ? 1.0f : 0.0f;
+					sExtendedCustomParams[10].g = paintInfos[AdvancedCreaturePaint::kIdentity] ? 1.0f : 0.0f;
+					sExtendedCustomParams[10].b = paintInfos[AdvancedCreaturePaint::kTextured] ? 1.0f : 0.0f;
 				}
 
 				texture0->SetColorWriteEnable(true, true, true, false);
@@ -369,6 +394,17 @@ bool BumpToNormalJob_Execute__detour::detoured()
 					skinpaintTintMaskTexture = TextureManager.GetTexture(key,
 						Graphics::kTextureFlagForceLoad | Graphics::kTextureFlagSetLOD);
 				}
+			}
+
+			if (!skinpaintDiffuseTexture)
+			{
+				skinpaintDiffuseTexture = TextureManager.GetTexture(ResourceKey(id("ACP_transparent"), TypeIDs::raster, GroupIDs::Global),
+					Graphics::kTextureFlagForceLoad | Graphics::kTextureFlagSetLOD);
+			}
+			if (!skinpaintTintMaskTexture)
+			{
+				skinpaintTintMaskTexture = TextureManager.GetTexture(ResourceKey(id("ACP_black"), TypeIDs::raster, GroupIDs::Global),
+					Graphics::kTextureFlagForceLoad | Graphics::kTextureFlagSetLOD);
 			}
 
 			sExtendedRenderEnabled = true;
