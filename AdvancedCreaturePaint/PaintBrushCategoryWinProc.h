@@ -56,6 +56,7 @@ private:
 	int mSelectedRegions;
 	bool mIsSelectingMultipleRegions;
 	Clock mDoubleClickTimer;
+	IWindowPtr mLastClickedButton;
 
 	Regions GetRegionForButton(UTFWin::IWindow*);
 };

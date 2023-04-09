@@ -13,6 +13,7 @@ PaintBrushCategoryWinProc::PaintBrushCategoryWinProc()
 	, mIsSelectingMultipleRegions(false)
 	, mDoubleClickTimer(Clock::Mode::Milliseconds)
 	, mRegionButtons()
+	, mLastClickedButton()
 {
 }
 
@@ -71,7 +72,7 @@ bool PaintBrushCategoryWinProc::HandleUIMessage(UTFWin::IWindow* window, const U
 			if (mDoubleClickTimer.IsRunning())
 			{
 				float elapsedMS = mDoubleClickTimer.GetElapsed();
-				if (elapsedMS < 500.0f)
+				if (elapsedMS < 500.0f && window == mLastClickedButton)
 				{
 					doubleClicked = true;
 				}
@@ -79,6 +80,7 @@ bool PaintBrushCategoryWinProc::HandleUIMessage(UTFWin::IWindow* window, const U
 			// Start the clock, this could be the first click of a double click
 			mDoubleClickTimer.Reset();
 			mDoubleClickTimer.Start();
+			mLastClickedButton = window;
 
 			if (doubleClicked)
 			{
@@ -178,6 +180,8 @@ void PaintBrushCategoryWinProc::AddToCategoryUI(Palettes::PaletteCategoryUI* cat
 	mButtonIdentity = acpContainer->FindWindowByID(id("ButtonIdentity"));
 	mButtonTextured = acpContainer->FindWindowByID(id("ButtonTextured"));
 	mButtonRemovePaint = acpContainer->FindWindowByID(id("ButtonRemovePaint"));
+
+	
 
 	mSelectedRegions = kRegionBase;
 
