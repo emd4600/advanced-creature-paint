@@ -11,6 +11,8 @@ PaintBrushCategoryWinProc::PaintBrushCategoryWinProc()
 	, mButtonIdentity()
 	, mSelectedRegions(0)
 	, mIsSelectingMultipleRegions(false)
+	, mDoubleClickTimer(Clock::Mode::Milliseconds)
+	, mRegionButtons()
 {
 }
 
@@ -55,70 +57,86 @@ bool PaintBrushCategoryWinProc::HandleUIMessage(UTFWin::IWindow* window, const U
 	if (message.IsType(UTFWin::kMsgMouseDown))
 	{
 		mIsSelectingMultipleRegions = false;
-		if (window == mButtonBase ||
-			window == mButtonCoat ||
-			window == mButtonDetail ||
-			window == mButtonIdentity ||
-			window == mButtonTextured)
+		if (mRegionButtons.find(window) != mRegionButtons.end())
 		{
 			mIsSelectingMultipleRegions = (message.Mouse.mouseState & MouseStateFlags::kMouseCtrlDown) != 0;
 		}
 	}
 	else if (message.IsType(UTFWin::kMsgComponentActivated))
 	{
-		auto button = object_cast<UTFWin::IButton>(window);
-		bool isSelected = (button->GetButtonStateFlags() & UTFWin::kBtnStateSelected) != 0;
-		bool wasSelected = !isSelected;
-
-		if (window == mButtonRemovePaint)
+		if (mRegionButtons.find(window) != mRegionButtons.end())
 		{
-
-		}
-		else
-		{
-			int region = (int)GetRegionForButton(window);
-
-			if (mIsSelectingMultipleRegions)
+			// Check if it was double click
+			bool doubleClicked = false;
+			if (mDoubleClickTimer.IsRunning())
 			{
-				if (wasSelected)
+				float elapsedMS = mDoubleClickTimer.GetElapsed();
+				if (elapsedMS < 500.0f)
 				{
-					int newRegionFlags = mSelectedRegions & ~region;
-					if (newRegionFlags == 0)
-					{
-						// We can only deselect if there are others selected
-						button->SetButtonStateFlag(UTFWin::kBtnStateSelected, true);
-					}
-					else
-					{
-						button->SetButtonStateFlag(UTFWin::kBtnStateSelected, false);
-						mSelectedRegions = newRegionFlags;
-					}
+					doubleClicked = true;
 				}
-				else
+			}
+			// Start the clock, this could be the first click of a double click
+			mDoubleClickTimer.Reset();
+			mDoubleClickTimer.Start();
+
+			if (doubleClicked)
+			{
+				for (auto btn : mRegionButtons)
 				{
-					mSelectedRegions |= region;
+					object_cast<UTFWin::IButton>(btn)->SetButtonStateFlag(UTFWin::kBtnStateSelected, true);
 				}
+				mSelectedRegions = kRegionAll;
 			}
 			else
 			{
-				int otherRegionFlags = mSelectedRegions & ~region;
-				// Deselect everything except this button if it wasn't selected, or if it was part of a multiple selection
-				if (!wasSelected || otherRegionFlags != 0)
-				{
-					// Deselect everything else, we do them all as we might come from deselect
-					object_cast<UTFWin::IButton>(mButtonBase)->SetButtonStateFlag(UTFWin::kBtnStateSelected, false);
-					object_cast<UTFWin::IButton>(mButtonCoat)->SetButtonStateFlag(UTFWin::kBtnStateSelected, false);
-					object_cast<UTFWin::IButton>(mButtonDetail)->SetButtonStateFlag(UTFWin::kBtnStateSelected, false);
-					object_cast<UTFWin::IButton>(mButtonIdentity)->SetButtonStateFlag(UTFWin::kBtnStateSelected, false);
-					object_cast<UTFWin::IButton>(mButtonTextured)->SetButtonStateFlag(UTFWin::kBtnStateSelected, false);
+				auto button = object_cast<UTFWin::IButton>(window);
+				bool isSelected = (button->GetButtonStateFlags() & UTFWin::kBtnStateSelected) != 0;
+				bool wasSelected = !isSelected;
 
-					button->SetButtonStateFlag(UTFWin::kBtnStateSelected, true);
-					mSelectedRegions = region;
+				int region = (int)GetRegionForButton(window);
+
+				if (mIsSelectingMultipleRegions)
+				{
+					if (wasSelected)
+					{
+						int newRegionFlags = mSelectedRegions & ~region;
+						if (newRegionFlags == 0)
+						{
+							// We can only deselect if there are others selected
+							button->SetButtonStateFlag(UTFWin::kBtnStateSelected, true);
+						}
+						else
+						{
+							button->SetButtonStateFlag(UTFWin::kBtnStateSelected, false);
+							mSelectedRegions = newRegionFlags;
+						}
+					}
+					else
+					{
+						mSelectedRegions |= region;
+					}
 				}
 				else
 				{
-					// We always must have at least one selected
-					button->SetButtonStateFlag(UTFWin::kBtnStateSelected, true);
+					int otherRegionFlags = mSelectedRegions & ~region;
+					// Deselect everything except this button if it wasn't selected, or if it was part of a multiple selection
+					if (!wasSelected || otherRegionFlags != 0)
+					{
+						// Deselect everything else, we do them all as we might come from deselect
+						for (auto btn : mRegionButtons)
+						{
+							object_cast<UTFWin::IButton>(btn)->SetButtonStateFlag(UTFWin::kBtnStateSelected, false);
+						}
+
+						button->SetButtonStateFlag(UTFWin::kBtnStateSelected, true);
+						mSelectedRegions = region;
+					}
+					else
+					{
+						// We always must have at least one selected
+						button->SetButtonStateFlag(UTFWin::kBtnStateSelected, true);
+					}
 				}
 			}
 		}
@@ -169,6 +187,12 @@ void PaintBrushCategoryWinProc::AddToCategoryUI(Palettes::PaletteCategoryUI* cat
 	mButtonIdentity->AddWinProc(this);
 	mButtonTextured->AddWinProc(this);
 	mButtonRemovePaint->AddWinProc(this);
+
+	mRegionButtons.insert(mButtonBase.get());
+	mRegionButtons.insert(mButtonCoat.get());
+	mRegionButtons.insert(mButtonDetail.get());
+	mRegionButtons.insert(mButtonIdentity.get());
+	mRegionButtons.insert(mButtonTextured.get());
 }
 
 bool PaintBrushCategoryWinProc::RegionIsSelected(Regions region) const

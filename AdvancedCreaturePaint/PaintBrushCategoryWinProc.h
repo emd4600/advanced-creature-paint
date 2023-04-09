@@ -19,6 +19,7 @@ public:
 		kRegionDetail = 1 << 2,
 		kRegionIdentity = 1 << 3,
 		kRegionTextured = 1 << 4,
+		kRegionAll = kRegionBase | kRegionCoat | kRegionDetail | kRegionIdentity | kRegionTextured
 	};
 	enum class Mode
 	{
@@ -51,8 +52,10 @@ private:
 	IWindowPtr mButtonDetail;
 	IWindowPtr mButtonTextured;
 	IWindowPtr mButtonIdentity;
+	eastl::set<UTFWin::IWindow*> mRegionButtons;
 	int mSelectedRegions;
 	bool mIsSelectingMultipleRegions;
+	Clock mDoubleClickTimer;
 
 	Regions GetRegionForButton(UTFWin::IWindow*);
 };
