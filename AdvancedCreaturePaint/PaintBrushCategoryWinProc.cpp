@@ -150,16 +150,24 @@ bool PaintBrushCategoryWinProc::HandleUIMessage(UTFWin::IWindow* window, const U
 
 void PaintBrushCategoryWinProc::AddToCategoryUI(Palettes::PaletteCategoryUI* categoryUI)
 {
+	Math::Rectangle originalColorPickersArea = categoryUI->mpColorPickersPanel->GetArea();
+	Math::Rectangle area = categoryUI->mpColorPickersPanel->GetRealArea();
+
+	const char* layoutName;
+	if (area.GetWidth() >= 340.0f) {
+		layoutName = "ACP_editorPaintBrushPaletteCategory";
+	}
+	else {
+		layoutName = "ACP_editorPaintBrushPaletteCategory_small";
+	}
 	mLayout = new UTFWin::UILayout();
-	mLayout->LoadByID(id("ACP_editorPaintBrushPaletteCategory"));
+	mLayout->LoadByID(id(layoutName));
 
 	auto acpContainer = mLayout->FindWindowByID(id("ACPButtonsContainer"));
 	float containerHeight = acpContainer->GetArea().GetHeight();
 
-	Math::Rectangle originalColorPickersArea = categoryUI->mpColorPickersPanel->GetArea();
-
+	SporeDebugPrint("WIDTH: %f", area.GetWidth());
 	// Let's move the color picker down
-	Math::Rectangle area = categoryUI->mpColorPickersPanel->GetRealArea();
 	area.y1 += containerHeight;
 	area.y2 += containerHeight;
 	categoryUI->mpColorPickersPanel->SetLayoutArea(area);
