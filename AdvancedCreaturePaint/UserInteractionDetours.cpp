@@ -122,7 +122,7 @@ void SetRigblockPaint(
 	auto creatureData = (AdvancedCreatureDataResource*)(Editor.GetSkin()->GetMesh()->mpCreatureData);
 	AdvancedCreatureDataResource::PaintInfo paintInfo;
 	paintInfo.rigblockIndex = rigblockIndex;
-	paintInfo.paintRegion = skinpaintIndex;
+	paintInfo.paint.region = skinpaintIndex;
 	paintInfo.FromRigblockPaint(paint);
 	creatureData->SetPaintInfo(paintInfo);
 }

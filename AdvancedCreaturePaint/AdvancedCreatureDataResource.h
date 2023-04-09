@@ -8,15 +8,22 @@ class AdvancedCreatureDataResource
 	: public Editors::cCreatureDataResource
 {
 public:
-	static const int FORMAT_VERSION = 1;
+	static const int MAX_FORMAT_VERSION = 2;
 
 	// We inject this structure as if it was floats in the `mAnimationWeights` vector
 	// An alternative was adding a new field, but this would have required modifying all functions that
 	// create a cCreatureDataResource, which is unfeasible
 	struct PaintInfo
 	{
-		int16_t rigblockIndex;
-		int16_t paintRegion;
+		struct PaintBitfield
+		{
+			unsigned int reserved : 24;
+			unsigned int region : 8;
+		};
+		ASSERT_SIZE(PaintBitfield, 4);
+
+		int rigblockIndex;
+		PaintBitfield paint;
 		uint32_t paintID;
 		Math::Color color1;
 		Math::Color color2;
@@ -37,7 +44,7 @@ public:
 	void SetPaintInfo(const PaintInfo& info);
 
 	// Returns true if it was removed, false if it didn't exist
-	bool RemovePaintInfo(int16_t rigblockIndex, int16_t paintRegion);
+	bool RemovePaintInfo(int rigblockIndex, int paintRegion);
 
 	void ClearPaintInfos();
 

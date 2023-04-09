@@ -138,7 +138,7 @@ bool PaintPartsJob_Execute__detour::detoured()
 				const auto& paintInfo = creatureData->GetPaintInfos()[lastPaintInfoIndex];
 				if (paintInfo.rigblockIndex == mRigblockIndex)
 				{
-					paintInfos[paintInfo.paintRegion] = &paintInfo;
+					paintInfos[paintInfo.paint.region] = &paintInfo;
 					hasAdvancedPaint = true;
 				}
 				else if (paintInfo.rigblockIndex > mRigblockIndex)
@@ -352,7 +352,7 @@ bool BumpToNormalJob_Execute__detour::detoured()
 			const auto& paintInfo = creatureData->GetPaintInfos()[lastPaintInfoIndex];
 			if (paintInfo.rigblockIndex == *mRigblockIndex)
 			{
-				paintInfos[paintInfo.paintRegion] = &paintInfo;
+				paintInfos[paintInfo.paint.region] = &paintInfo;
 				hasAdvancedPaint = true;
 			}
 			else if (paintInfo.rigblockIndex > *mRigblockIndex)

@@ -25,7 +25,8 @@ void AdvancedCreatureDataResource::AddFromRigblock(Editors::EditorRigblock* rigb
 	{
 		PaintInfo info;
 		info.rigblockIndex = rigblockIndex;
-		info.paintRegion = paint.first;
+		info.paint.reserved = 0;
+		info.paint.region = paint.first;
 		info.FromRigblockPaint(paint.second);
 
 		// Unfortunately, we cannot assume this function will be called in order of 'rigblockIndex',
@@ -64,7 +65,7 @@ void AdvancedCreatureDataResource::SetPaintInfo(const PaintInfo& info)
 	for (int i = 0; i < count; i++)
 	{
 		if (infos[i].rigblockIndex > info.rigblockIndex ||
-			(infos[i].rigblockIndex == info.rigblockIndex && infos[i].paintRegion > info.paintRegion))
+			(infos[i].rigblockIndex == info.rigblockIndex && infos[i].paint.region > info.paint.region))
 		{
 			// The new info must be inserted right here.
 			int previousSize = mAnimationWeights.size();
@@ -74,7 +75,7 @@ void AdvancedCreatureDataResource::SetPaintInfo(const PaintInfo& info)
 			infos[i] = info;
 			return;
 		}
-		else if (infos[i].rigblockIndex == info.rigblockIndex && infos[i].paintRegion == info.paintRegion)
+		else if (infos[i].rigblockIndex == info.rigblockIndex && infos[i].paint.region == info.paint.region)
 		{
 			infos[i] = info;
 			return;
@@ -85,7 +86,7 @@ void AdvancedCreatureDataResource::SetPaintInfo(const PaintInfo& info)
 	infos[count] = info;
 }
 
-bool AdvancedCreatureDataResource::RemovePaintInfo(int16_t rigblockIndex, int16_t paintRegion)
+bool AdvancedCreatureDataResource::RemovePaintInfo(int rigblockIndex, int paintRegion)
 {
 	auto numAnimations = mAnimationValues.size();
 	auto infos = (PaintInfo*)(mAnimationWeights.data() + numAnimations);
@@ -94,12 +95,12 @@ bool AdvancedCreatureDataResource::RemovePaintInfo(int16_t rigblockIndex, int16_
 	for (int i = 0; i < count; i++)
 	{
 		if (infos[i].rigblockIndex > rigblockIndex ||
-			(infos[i].rigblockIndex == rigblockIndex && infos[i].paintRegion > paintRegion))
+			(infos[i].rigblockIndex == rigblockIndex && infos[i].paint.region > paintRegion))
 		{
 			// Since they are ordered, this means the paint info did not exist
 			return false;
 		}
-		else if (infos[i].rigblockIndex == rigblockIndex && infos[i].paintRegion == paintRegion)
+		else if (infos[i].rigblockIndex == rigblockIndex && infos[i].paint.region == paintRegion)
 		{
 			auto eraseFirst = mAnimationWeights.begin() + numAnimations + i * PAINT_INFO_NUM_WORDS;
 			auto eraseLast = mAnimationWeights.begin() + numAnimations + (i + 1) * PAINT_INFO_NUM_WORDS;
@@ -125,7 +126,7 @@ static_detour(cCreatureDataResource_Read__detour, bool(IO::IStream* stream, Edit
 			if (!IO::ReadInt32(stream, &version, 1, IO::Endian::Little))
 				return false;
 
-			if (version != AdvancedCreatureDataResource::FORMAT_VERSION)
+			if (version > AdvancedCreatureDataResource::MAX_FORMAT_VERSION)
 				return false;
 
 			unsigned int numPaintInfos;
@@ -136,10 +137,32 @@ static_detour(cCreatureDataResource_Read__detour, bool(IO::IStream* stream, Edit
 			{
 				unsigned int numAnimations = creatureData->mAnimationValues.size();
 				creatureData->mAnimationWeights.resize(numAnimations + numPaintInfos * PAINT_INFO_NUM_WORDS);
-				float* dstData = creatureData->mAnimationWeights.data() + numAnimations;
-				int numBytes = numPaintInfos * PAINT_INFO_SIZE;
-				if (stream->Read(dstData, numBytes) != numBytes)
-					return false;
+				if (version == 1)
+				{
+					auto dstData = (AdvancedCreatureDataResource::PaintInfo*)(creatureData->mAnimationWeights.data() + numAnimations);
+					for (unsigned int i = 0; i < numAnimations; i++)
+					{
+						dstData[i].rigblockIndex = 0;
+						uint16_t region;
+						IO::ReadUInt16(stream, (uint16_t*)&dstData[i].rigblockIndex, 1, IO::Endian::Little);
+						IO::ReadUInt16(stream, &region, 1, IO::Endian::Little);
+
+						dstData[i].paint.reserved = 0;
+						dstData[i].paint.region = region;
+
+						IO::ReadUInt32(stream, &dstData[i].paintID, 1, IO::Endian::Little);
+
+						stream->Read(&dstData[i].color1, 4);
+						stream->Read(&dstData[i].color2, 4);
+					}
+				}
+				else if (version == 2)
+				{
+					float* dstData = creatureData->mAnimationWeights.data() + numAnimations;
+					int numBytes = numPaintInfos * PAINT_INFO_SIZE;
+					if (stream->Read(dstData, numBytes) != numBytes)
+						return false;
+				}
 			}
 		}
 		return true;
@@ -161,7 +184,7 @@ static_detour(cCreatureDataResource_Write__detour, bool(IO::IStream* stream, Edi
 		// If the mod is not used, just keep the original file intact
 		if (numPaintInfos > 0)
 		{
-			if (!stream->Write(&AdvancedCreatureDataResource::FORMAT_VERSION, sizeof(int)))
+			if (!stream->Write(&AdvancedCreatureDataResource::MAX_FORMAT_VERSION, sizeof(int)))
 				return false;
 
 			if (!stream->Write(&numPaintInfos, sizeof(unsigned int)))
