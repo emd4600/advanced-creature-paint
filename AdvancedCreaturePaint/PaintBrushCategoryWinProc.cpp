@@ -181,8 +181,6 @@ void PaintBrushCategoryWinProc::AddToCategoryUI(Palettes::PaletteCategoryUI* cat
 	mButtonTextured = acpContainer->FindWindowByID(id("ButtonTextured"));
 	mButtonRemovePaint = acpContainer->FindWindowByID(id("ButtonRemovePaint"));
 
-	
-
 	mSelectedRegions = kRegionBase;
 
 	mButtonBase->AddWinProc(this);

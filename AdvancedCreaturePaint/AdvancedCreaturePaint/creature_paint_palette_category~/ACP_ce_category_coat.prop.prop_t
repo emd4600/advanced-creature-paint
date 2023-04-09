@@ -1,8 +1,0 @@
-key paletteCategoryIcon editors~!0x3F6C04BD.png
-key paletteCategoryLayoutFile ACP_editorPaintBrushPaletteSubCategory
-texts paletteCategoryName
-	(ce_paint!0x6c2e8692) "Coat"
-end
-key paletteCategoryParentCategory creature_paint_palette_category~!ACP_ce_category_paintbrush.prop
-uint32 paletteCategorySequenceNumber 300
-uint32 paletteCategorySkinPaintIndex 1

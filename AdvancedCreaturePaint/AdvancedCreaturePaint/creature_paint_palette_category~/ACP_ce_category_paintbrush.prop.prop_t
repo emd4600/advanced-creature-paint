@@ -1,5 +1,4 @@
 key parent palette_config~!0x7E35C190.prop
-#key paletteCategoryLayoutFile ACP_editorPaintBrushPaletteCategory
 key paletteCategoryLayoutFile editorPaintBrushPaletteCategory
 keys paletteCategoryIconList
 	editors_creature~!0xDFADBF0F.png

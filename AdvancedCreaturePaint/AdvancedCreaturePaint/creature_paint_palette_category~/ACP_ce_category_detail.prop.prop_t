@@ -1,8 +1,0 @@
-key paletteCategoryIcon editors~!0xEE726FCB.png
-key paletteCategoryLayoutFile 0x1A43A8E7
-texts paletteCategoryName
-	(ce_paint!0xd77af4a8) "Detail"
-end
-key paletteCategoryParentCategory creature_paint_palette_category~!ACP_ce_category_paintbrush.prop
-uint32 paletteCategorySequenceNumber 400
-uint32 paletteCategorySkinPaintIndex 2
