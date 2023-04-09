@@ -4,11 +4,6 @@
 
 // We use this file for the user-side of the mod: the paint categories, clicking on parts, etc
 
-member_detour(PaletteUI_SetActiveCategory__detour, Palettes::PaletteUI, void(int))
-{
-	void detoured(int index);
-};
-
 member_detour(PaletteCategoryUI_LayoutPagePanel__detour, Palettes::PaletteCategoryUI, void())
 {
 	void detoured();

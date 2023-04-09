@@ -212,7 +212,6 @@ member_detour(
 		for (int i = 0; i < count; i++) {
 			if (rigblocks[i]->mPaints.size() > 0) rigblockPaintCount++;
 		}
-		SporeDebugPrint("[FromRigblocks detour]: Executed with %d rigblocks, %d with paints", count, rigblockPaintCount);
 
 		auto creatureData = (AdvancedCreatureDataResource*)this->mpCreatureData;
 		for (int i = 0; i < count; ++i)

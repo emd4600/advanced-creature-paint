@@ -21,16 +21,6 @@ bool IsAdvancedPaintCategory()
 }
 
 
-void PaletteUI_SetActiveCategory__detour::detoured(int index)
-{
-	original_function(this, index);
-
-	if (index != -1 && mCategories[index]->mpCategory->mCategoryID == ACP_CATEGORY_ID)
-	{
-		SporeDebugPrint("SetActiveCategory");
-	}
-}
-
 void PaletteCategoryUI_LayoutPagePanel__detour::detoured()
 {
 	// At this point the PaletteCategoryUI has some windows, but it still hasn't inserted the pages
@@ -54,7 +44,6 @@ bool Editor_HandleMessage__detour::detoured(uint32_t messageID, void* msg)
 	{
 		if (IsAdvancedPaintCategory())
 		{
-			SporeDebugPrint("Correct category");
 			return true;
 		}
 		else
@@ -106,7 +95,6 @@ void SetRigblockPaint(
 	for (unsigned int i = 0; i < rigblock->mPaints.size(); ++i)
 	{
 		if (rigblock->mPaints[i].first == skinpaintIndex) {
-			SporeDebugPrint("Replacing existing EditorRigblockPaint");
 			rigblock->mPaints[i].second = paint;
 			assigned = true;
 			break;
@@ -114,7 +102,6 @@ void SetRigblockPaint(
 	}
 	if (!assigned)
 	{
-		SporeDebugPrint("Adding new EditorRigblockPaint");
 		rigblock->mPaints.push_back({ skinpaintIndex, paint });
 	}
 
@@ -155,11 +142,6 @@ bool Editor_OnMouseUp__detour::detoured(MouseButton mouseButton, float mouseX, f
 		{
 			uint32_t instanceID, groupID;
 			Editor.mpMainModelWorld->GetModelResourceIDs(model, &instanceID, &groupID);
-			SporeDebugPrint("Detected model %x!%x", groupID, instanceID);
-		}
-		else
-		{
-			SporeDebugPrint("No model detected");
 		}
 
 		if (model == sLastClickedRigblock)

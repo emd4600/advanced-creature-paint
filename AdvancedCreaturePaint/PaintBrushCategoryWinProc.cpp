@@ -166,7 +166,6 @@ void PaintBrushCategoryWinProc::AddToCategoryUI(Palettes::PaletteCategoryUI* cat
 	auto acpContainer = mLayout->FindWindowByID(id("ACPButtonsContainer"));
 	float containerHeight = acpContainer->GetArea().GetHeight();
 
-	SporeDebugPrint("WIDTH: %f", area.GetWidth());
 	// Let's move the color picker down
 	area.y1 += containerHeight;
 	area.y2 += containerHeight;

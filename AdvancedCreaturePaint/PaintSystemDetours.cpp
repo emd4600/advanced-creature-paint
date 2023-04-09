@@ -35,17 +35,6 @@ bool PaintPartsJob_Execute__detour::detoured()
 	int count = creatureData->mRigblocks.size();
 	auto numPaintInfos = creatureData->GetNumPaintInfos();
 
-	if (mStage == 1)
-	{
-		SporeDebugPrint("[PaintPartsJob detour]: Executed stage 1, %d paint infos available", creatureData->GetNumPaintInfos());
-		for (int i = 0; i < creatureData->GetNumPaintInfos(); i++)
-		{
-			const auto& paintInfo = creatureData->GetPaintInfos()[i];
-			SporeDebugPrint("   PaintInfo [rigblockIndex=%d, %x!%x]", paintInfo.rigblockIndex,
-				creatureData->mRigblocks[paintInfo.rigblockIndex].mGroupID, creatureData->mRigblocks[paintInfo.rigblockIndex].mInstanceID);
-		}
-	}
-
 	if (mStage == 1) mStage = 2;
 
 	if (mStage >= 4)

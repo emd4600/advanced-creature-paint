@@ -8,6 +8,7 @@ fe_skinpaint_floracoat_cow
 be_tech_55
 be_tech_54
 materials_compiled_states_link~	0x40212000
+2
 be_tech_57
 1
 be_tech_56
@@ -129,6 +130,7 @@ ACP_ce_TextureGroup_Extra_8
 ve_airship_canvas_02
 ACP_ce_TextureGroup_Extra_4
 ACP_ce_TextureGroup_Extra_5
+
 ACP_ce_TextureGroup_Extra_6
 ACP_ce_TextureGroup_Extra_7
 ACP_ce_TextureGroup_Extra_1
@@ -404,6 +406,7 @@ be_simple_03
 be_simple_04
 be_simple_05
 ve_airship_65
+fi-fi
 Tooltips
 flora_paint_palette_category~	0x406b6e15
 ACP_ce_TextureGroup_Extra_       1
@@ -418,6 +421,7 @@ auto_flora_paint_palette_category~_fe_category_base
 ACP_ce_TextureGroup_Extra_       6
 ACP_ce_TextureGroup_Extra_       7
 ACP_ce_TextureGroup_Extra_       8
+ja-jp
 ACP_ce_category_coat
 ve_generic_long_hole_grate_02
 be_tech_19
@@ -444,6 +448,7 @@ ve_old_car_glass_01
 auto_creature_paint_palette_items~_ACP_ce_TextureGroup_Fantasy_Parts_2
 ve_fantasy_melon_03
 ACP_editorPaintBrushPaletteCategory2
+es-es
 ACP_l
 BE_Basic_Pebble_Stone_Small_01
 ButtonIdentity
@@ -498,6 +503,7 @@ ve_airship_07
 ve_old_car_wheel_05
 ACP_
 ve_old_car_15
+ru-ru
 ve_old_car_16
 auto_skinPaint_script~_ACP_ce_paint_color
 ACPTestFile
@@ -644,6 +650,7 @@ be_basic_plain_wood_10
 be_basic_bamboo_10
 be_basic_pebble_stone_08
 ACP_ce_TextureGroup_zany_1
+en-us
 ACP_ce_TextureGroup_zany_2
 be_basic_pebble_stone_02
 be_basic_pebble_stone_07
