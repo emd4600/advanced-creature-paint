@@ -1,6 +1,6 @@
 key parent palette_config~!TemplatePaletteBlockPaint.prop
 string16 description "Old"
 bool palettePageIgnoreOverrideThumbnailGroup true
-key palettePageParentCategory creature_paint_palette_category~!ACP_ce_category_paintbrush
+key palettePageParentCategory flora_paint_palette_category~!ACP_ce_category_paintbrush
 uint32 palettePageSequenceNumber 550
 int32 palettePageSetId 1
