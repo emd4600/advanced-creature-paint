@@ -13,8 +13,3 @@ member_detour(BumpToNormalJob_Execute__detour, Skinner::cSkinPainterJobBumpToNor
 {
 	bool detoured();
 };
-
-member_detour(cSkinnerTexturePainter_LoadMaterial__detour, Skinner::cSkinnerTexturePainter, RenderWare::CompiledState* ())
-{
-	RenderWare::CompiledState* detoured();
-};

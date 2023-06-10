@@ -55,14 +55,6 @@ void Dispose()
 {
 }
 
-static_detour(Test__detour, bool(int, int))
-{
-	bool detoured(int arg1, int)
-	{
-		return false;
-	}
-};
-
 void AttachDetours()
 {
 	EditorModel_Load__detour::attach(GetAddress(Editors::EditorModel, Load));
@@ -75,7 +67,6 @@ void AttachDetours()
 
 	PaintPartsJob_Execute__detour::attach(GetAddress(Skinner::cSkinPainterJobPaintParts, Execute));
 	BumpToNormalJob_Execute__detour::attach(GetAddress(Skinner::cSkinPainterJobBumpToNormal, Execute));
-	cSkinnerTexturePainter_LoadMaterial__detour::attach(GetAddress(Skinner::cSkinnerTexturePainter, LoadMaterial));
 
 	AdvancedCreatureDataResource::AttachDetours();
 }
