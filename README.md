@@ -1,6 +1,6 @@
 # Spore Mod: Advanced Creature Paint
 
-This mod lets you **paint your creatures like buildings**: paint each prat individually with hundreds of textures.
+This mod lets you **paint your creatures like buildings**: paint each part individually with hundreds of textures.
 
 ![imatge](https://i.imgur.com/rxweQL2.png)
 
@@ -20,7 +20,7 @@ Remember you have to use the `Spore ModAPI Launcher.exe` to launch the game, oth
 
 ## About the mod
 
-- To use the mod, go to paint mode in any creature editor, then use the *Paint Brush* category:
+- To use the mod, go to paint mode in any creature editor or outfitter, then use the *Paint Brush* category:
 ![imatge](https://i.imgur.com/KADMnvT.png)
 - Select the paint you want, choose the colors, and then click on any part to paint it.
 - A Spore part is divided in 5 regions; **base**, **coat**, **detail**, **textured areas** (that usually don't change color, like the inside of a mouth), and **identity color** (used in tribal and civ parts). The mod lets you use a different paint for each of those 5 regions, using the buttons on the top of the paint page:
