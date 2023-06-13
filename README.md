@@ -2,7 +2,7 @@
 
 This mod lets you **paint your creatures like buildings**: paint each prat individually with hundreds of textures.
 
-![imatge](https://github.com/emd4600/advanced-creature-paint/assets/8646916/4164a477-f0e3-4e7a-a044-3820d62d5e71)
+![imatge](https://i.imgur.com/rxweQL2.png)
 
 The creations made with this mod **can be shared** to the Sporepedia, but users that do not have the mod will not see the additional paints (they will see it like a regular creature).
 
@@ -21,10 +21,13 @@ Remember you have to use the `Spore ModAPI Launcher.exe` to launch the game, oth
 ## About the mod
 
 - To use the mod, go to paint mode in any creature editor, then use the *Paint Brush* category:
-![imatge](https://github.com/emd4600/advanced-creature-paint/assets/8646916/d881c235-2d5c-42ec-add0-7ff258a22245)
+![imatge](https://i.imgur.com/KADMnvT.png)
 - Select the paint you want, choose the colors, and then click on any part to paint it.
 - A Spore part is divided in 5 regions; **base**, **coat**, **detail**, **textured areas** (that usually don't change color, like the inside of a mouth), and **identity color** (used in tribal and civ parts). The mod lets you use a different paint for each of those 5 regions, using the buttons on the top of the paint page:
-![imatge](https://github.com/emd4600/advanced-creature-paint/assets/8646916/03d7991d-bb7f-4e12-8820-c2119978d552)
+![imatge](https://i.imgur.com/ztiFwj9.png)
 - You can paint several regions at once by `Ctrl + Click` on the buttons. Double click on any button to select them all, which will paint the entire part with the same paint.
 - You can remove the special paint of a specific part region by clicking on the `Remove paint` button on the left, and then clicking on the part.
 - Tip: you can paint parts even when the creature is still loading its paint. This allows you to quickly paint many parts without having to wait.
+
+## Known issues
+- The mod is not compatible with DarkInjection's Full UI (user interface). You can use any other Dark Injection UI.
