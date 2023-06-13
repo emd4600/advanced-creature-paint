@@ -245,6 +245,19 @@ bool PaintPartsJob_Execute__detour::detoured()
 				whiteTexture = TextureManager.GetTexture(ResourceKey(id("ACP_white"), TypeIDs::raster, GroupIDs::Global),
 					Graphics::kTextureFlagForceLoad | Graphics::kTextureFlagSetLOD);
 
+			// Some modded parts don't have these textures, let's replace the to avoid crashes
+			if (!skinpaintDiffuseTexture || !skinpaintTintMaskTexture) {
+				if (!transparentTexture)
+					transparentTexture = TextureManager.GetTexture(ResourceKey(id("ACP_black_transparent"), TypeIDs::raster, GroupIDs::Global),
+						Graphics::kTextureFlagForceLoad | Graphics::kTextureFlagSetLOD);
+			}
+			if (!skinpaintDiffuseTexture) {
+				skinpaintDiffuseTexture = transparentTexture.get();
+			}
+			if (!skinpaintTintMaskTexture) {
+				skinpaintTintMaskTexture = transparentTexture.get();
+			}
+
 			for (int i = 0; i < AdvancedCreaturePaint::NUM_REGIONS; i++)
 			{
 				PropertyListPtr paintPropList;
@@ -291,19 +304,6 @@ bool PaintPartsJob_Execute__detour::detoured()
 		// Stage 4: Generate temporary advanced paints to texture2
 		if (mStage == 4) 
 		{
-			// Some modded parts don't have these textures, let's replace the to avoid crashes
-			if (!skinpaintDiffuseTexture || !skinpaintTintMaskTexture) {
-				if (!transparentTexture)
-					transparentTexture = TextureManager.GetTexture(ResourceKey(id("ACP_black_transparent"), TypeIDs::raster, GroupIDs::Global),
-						Graphics::kTextureFlagForceLoad | Graphics::kTextureFlagSetLOD);
-			}
-			if (!skinpaintDiffuseTexture) {
-				skinpaintDiffuseTexture = transparentTexture.get();
-			}
-			if (!skinpaintTintMaskTexture) {
-				skinpaintTintMaskTexture = transparentTexture.get();
-			}
-
 			auto diffuseRaster = skinpaintDiffuseTexture->GetLoadedRaster();
 			auto tintMaskRaster = skinpaintTintMaskTexture->GetLoadedRaster();
 			// Blend all colors in a separate texture, then blend the final result with the existing texture
