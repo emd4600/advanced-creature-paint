@@ -31,3 +31,8 @@ Remember you have to use the `Spore ModAPI Launcher.exe` to launch the game, oth
 
 ## Known issues
 - The mod is not compatible with DarkInjection's Full UI (user interface). You can use any other Dark Injection UI.
+
+## Credits
+- [@emd4600](https://github.com/emd4600), the author of the mod.
+- [@Valla-Chan](https://github.com/Valla-Chan), who designed the icons of the region buttons.
+- @Mx3, who designed the icons for the hidden Spore paints (the last  pages of paints)
