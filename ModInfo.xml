@@ -1,0 +1,12 @@
+<mod displayName="Advanced Creature Paint" 
+	 unique="AdvancedCreaturePaint" 
+	 description="Paint your creatures like buildings, allows you to paint each part individually with hundreds of textures" 
+	 installerSystemVersion="1.0.1.2" 
+	 isExperimental="false" 
+	 dllsBuild="2.5.271"
+>
+	<remove game="GalacticAdventures">AdvancedCreaturePaint.package</remove>
+	<remove>AdvancedCreaturePaint.dll</remove>
+	<prerequisite game="GalacticAdventures">AdvancedCreaturePaint.package</prerequisite>
+	<prerequisite>AdvancedCreaturePaint.dll</prerequisite>
+</mod>
