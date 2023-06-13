@@ -38,5 +38,4 @@ compiledState state-0
 	end
 end
 
-# Copies sampler0 texture, blending according to sampler1 tintMask
 material ACP_skpAdvancedSplat_blendTexture_specificPart -states state-0

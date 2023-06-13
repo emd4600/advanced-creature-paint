@@ -27,5 +27,4 @@ compiledState state-0
 	end
 end
 
-# Paints sampler0 paint with customParams without any masking or blending
 material ACP_skpAdvancedSplat_paintNoMaskNoBlend -states state-0

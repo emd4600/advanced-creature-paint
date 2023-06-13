@@ -38,5 +38,4 @@ compiledState state-0
 	end
 end
 
-# Paints sampler0 paint with customParams, according to the sampler1 tintMask
 material ACP_skpAdvancedSplat_paintByTintMask -states state-0

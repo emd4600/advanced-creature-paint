@@ -55,6 +55,9 @@ bool PaintPartsJob_Execute__detour::detoured()
 	auto texture2 = PaintSystem.GetPainter()->mpTexture2;
 	auto skinMesh = PaintSystem.GetSkinMesh();
 
+	TexturePtr whiteTexture = nullptr;
+	TexturePtr transparentTexture = nullptr;
+
 	auto creatureData = (AdvancedCreatureDataResource*)skinMesh->mpCreatureData;
 	int count = creatureData->mRigblocks.size();
 	auto numPaintInfos = creatureData->GetNumPaintInfos();
@@ -232,15 +235,15 @@ bool PaintPartsJob_Execute__detour::detoured()
 			texture1->PaintRegion(uv1, uv2);
 		}
 
-		TexturePtr whiteTexture = nullptr;
 		Math::ColorRGBA paintColor1[AdvancedCreaturePaint::NUM_REGIONS];
 		Math::ColorRGBA paintColor2[AdvancedCreaturePaint::NUM_REGIONS];
 		RenderWare::Raster* paintRasters[AdvancedCreaturePaint::NUM_REGIONS];
 
 		if (mStage == 4 || mStage == 5) 
 		{
-			whiteTexture = TextureManager.GetTexture(ResourceKey(id("ACP_white"), TypeIDs::raster, GroupIDs::Global),
-				Graphics::kTextureFlagForceLoad | Graphics::kTextureFlagSetLOD);
+			if (!whiteTexture)
+				whiteTexture = TextureManager.GetTexture(ResourceKey(id("ACP_white"), TypeIDs::raster, GroupIDs::Global),
+					Graphics::kTextureFlagForceLoad | Graphics::kTextureFlagSetLOD);
 
 			for (int i = 0; i < AdvancedCreaturePaint::NUM_REGIONS; i++)
 			{
@@ -288,6 +291,19 @@ bool PaintPartsJob_Execute__detour::detoured()
 		// Stage 4: Generate temporary advanced paints to texture2
 		if (mStage == 4) 
 		{
+			// Some modded parts don't have these textures, let's replace the to avoid crashes
+			if (!skinpaintDiffuseTexture || !skinpaintTintMaskTexture) {
+				if (!transparentTexture)
+					transparentTexture = TextureManager.GetTexture(ResourceKey(id("ACP_black_transparent"), TypeIDs::raster, GroupIDs::Global),
+						Graphics::kTextureFlagForceLoad | Graphics::kTextureFlagSetLOD);
+			}
+			if (!skinpaintDiffuseTexture) {
+				skinpaintDiffuseTexture = transparentTexture.get();
+			}
+			if (!skinpaintTintMaskTexture) {
+				skinpaintTintMaskTexture = transparentTexture.get();
+			}
+
 			auto diffuseRaster = skinpaintDiffuseTexture->GetLoadedRaster();
 			auto tintMaskRaster = skinpaintTintMaskTexture->GetLoadedRaster();
 			// Blend all colors in a separate texture, then blend the final result with the existing texture
@@ -312,20 +328,6 @@ bool PaintPartsJob_Execute__detour::detoured()
 				texture2->AddRaster(1, nullptr);
 			}
 			texture2->PaintRegion(uv1, uv2);
-			//SaveTexture(texture2->GetRaster(), u"C:\\Users\\Eric\\Desktop\\test_textures\\texture2.png", true);
-
-			//// But if we use base, we replace the existing texture with the base texture
-			//if (paintInfos[AdvancedCreaturePaint::kBase])
-			//{
-			//	texture2->mMaterialID = id("ACP_skpAdvancedSplat_paintNoMaskNoBlend");
-			//	texture2->AddRaster(0, paintRasters[AdvancedCreaturePaint::kBase]);
-			//	texture2->AddRaster(1, paintRasters[AdvancedCreaturePaint::kBase]);
-			//	texture2->AddCustomParams(0, paintColor1[AdvancedCreaturePaint::kBase]);
-			//	texture2->AddCustomParams(1, paintColor2[AdvancedCreaturePaint::kBase]);
-			//	texture2->AddCustomParams(2, { 1.0f, 0.0f, 0.0f, 0.0f });
-			//	texture2->PaintRegion(uv1, uv2);
-			//}
-			//SaveTexture(texture2->GetRaster(), u"C:\\Users\\Eric\\Desktop\\test_textures\\texture2_a.png", true);
 
 			texture2->mMaterialID = id("ACP_skpAdvancedSplat_paintByTintMask");
 			texture2->AddRaster(0, paintRasters[AdvancedCreaturePaint::kBase]);
@@ -334,8 +336,7 @@ bool PaintPartsJob_Execute__detour::detoured()
 			texture2->AddCustomParams(1, paintColor2[AdvancedCreaturePaint::kBase]);
 			texture2->AddCustomParams(2, { 1.0f, 0.0f, 0.0f, 0.0f });
 			texture2->PaintRegion(uv1, uv2);
-			
-			//SaveTexture(texture2->GetRaster(), u"C:\\Users\\Eric\\Desktop\\test_textures\\texture2_before_coat.png", true);
+
 			texture2->mMaterialID = id("ACP_skpAdvancedSplat_paintByTintMask");
 			texture2->AddRaster(0, paintRasters[AdvancedCreaturePaint::kCoat]);
 			texture2->AddRaster(1, tintMaskRaster);
@@ -343,7 +344,6 @@ bool PaintPartsJob_Execute__detour::detoured()
 			texture2->AddCustomParams(1, paintColor2[AdvancedCreaturePaint::kCoat]);
 			texture2->AddCustomParams(2, { 0.0f, 1.0f, 0.0f, 0.0f });
 			texture2->PaintRegion(uv1, uv2);
-			//SaveTexture(texture2->GetRaster(), u"C:\\Users\\Eric\\Desktop\\test_textures\\texture2_after_coat.png", true);
 			
 			texture2->mMaterialID = id("ACP_skpAdvancedSplat_paintByTintMask");
 			texture2->AddRaster(0, paintRasters[AdvancedCreaturePaint::kDetail]);

@@ -27,5 +27,4 @@ compiledState state-0
 	end
 end
 
-# This material paints the given paint diffuse texture with building paint coloring on 'customParams'
 material ACP_skpAdvancedSplat_copyTexture -states state-0
